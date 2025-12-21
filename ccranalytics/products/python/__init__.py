@@ -2,31 +2,29 @@
 CCR Analytics Engine - Python Products v1.3.0
 ==============================================
 
+Pure Python implementations of 90+ financial products across all asset classes.
+
+Asset Classes:
+- Interest Rate (8): IRS, OIS, FRA, Cap, Floor, Swaption, Basis Swap
+- FX (6): Forward, Swap, Option, Barrier, NDF, Digital
+- Credit (4): CDS, CDS Index, TRS, CLN
+- Equity (6): Swap, Option, Forward, Variance, Dividend, EquityTRS
+- Commodity (3): Swap, Option, Forward
+- Cross-Currency (3): XCCY Swap, Basis, MTM
+- Repo (4): Repo, Reverse Repo, Securities Lending, Buy/Sell Back
+- Money Market (7): CD, BA, Eurodollar, Fed Funds, MMF, TD, Discount Note
+- Stocks (8): Common, ADR, GDR, Preferred, Warrant, ETF, MF, Index
+- Alternatives (8): Crypto (3), REIT, Carbon (2), PE, HF
+- Futures (6): Index, IR, Bond, VIX, SSF, Commodity
+- Fixed Income (21): Treasuries, Gilts, Bunds, MBS, CDO, CLO, BondTRS
+- SFT (4): MarginLoan, CollateralSwap, TriPartyRepo, PrimeBrokerage
+
 Copyright © 2025-2030, All Rights Reserved
 Ashutosh Sinha | Email: ajsinha@gmail.com
 
-Legal Notice: This module and the associated software architecture are proprietary 
-and confidential. Unauthorized copying, distribution, modification, or use is 
+Legal Notice: This module and the associated software architecture are proprietary
+and confidential. Unauthorized copying, distribution, modification, or use is
 strictly prohibited without explicit written permission from the copyright holder.
-
----
-
-Pure Python implementations of 81 financial products across 12 asset classes.
-
-Product Categories:
-- Interest Rate (8): IRS, OIS, FRA, Cap, Floor, Swaption, Basis Swap, IRSLeg
-- FX (6): Forward, Swap, Option, Barrier, NDF, Digital
-- Credit (4): CDS, CDS Index, TRS, Credit Linked Note
-- Equity (5): Swap, Option, Forward, Variance Swap, Dividend Swap
-- Commodity (3): Swap, Option, Forward
-- Cross-Currency (3): XCCY Swap, Basis Swap, MTM Swap
-- Repo (4): Repo, Reverse Repo, Securities Lending, Buy/Sell Back
-- Money Market (7): CD, BA, Eurodollar, Fed Funds, MMF, Time Deposit, Discount Note
-- Stocks (8): Common, ADR, GDR, Preferred, Warrant, ETF, Mutual Fund, Index Position
-- Alternatives (8): Crypto (Spot/Future/Perpetual), REIT, Carbon, PE, Hedge Fund
-- Futures (5): Index, IR, Bond, VIX, Single Stock
-- Fixed Income (20): Treasuries, Gilts, Bunds, JGB, OAT, Muni, Agency, Corporate,
-                     FRN, Convertible, CP, MTN, MBS, ABS, CDO, CLO, Zero Coupon
 """
 
 __version__ = "1.3.0"
@@ -48,9 +46,10 @@ from .credit import (
     CreditDefaultSwap, CDSIndex, TotalReturnSwap, CreditLinkedNote
 )
 
-# Equity Derivatives (5)
+# Equity Derivatives (6)
 from .equity import (
-    EquitySwap, EquityOption, EquityForward, VarianceSwap, DividendSwap
+    EquitySwap, EquityOption, EquityForward, VarianceSwap, DividendSwap,
+    EquityTRS, EquityTRSType, EquityTRSTerms
 )
 
 # Commodity (3)
@@ -81,18 +80,31 @@ from .alternatives import (
     CarbonCredit, CarbonFuture, PrivateEquityInterest, HedgeFundInterest
 )
 
-# Futures (5)
+# Futures (6)
 from .futures import (
-    IndexFuture, InterestRateFuture, BondFuture, VIXFuture, SingleStockFuture
+    IndexFuture, InterestRateFuture, BondFuture, VIXFuture, SingleStockFuture,
+    CommodityFuture, CommodityType, CommodityFutureTerms, CommoditySubClass
 )
 
-# Fixed Income (20)
+# Fixed Income (21)
 from .fixed_income import (
     TreasuryBill, TreasuryNote, TreasuryBond, TIPS,
     UKGilt, GermanBund, JGB, FrenchOAT,
     MunicipalBond, AgencyBond, CorporateBond,
     FloatingRateNote, ConvertibleBond, CommercialPaper, MediumTermNote,
-    MBS, ABS, CDO, CLO, ZeroCouponBond
+    MBS, ABS, CDO, CLO, ZeroCouponBond,
+    BondTRS, BondTRSTerms, BondTRSUnderlyingType, BondTRSReturnType, BondTRSResetType
+)
+
+# Securities Financing Transactions - SFT (7)
+from .sft import (
+    MarginLoan, MarginLoanTerms, MarginLoanType,
+    MarginLending, LoanPurpose,
+    CollateralSwap, CollateralQuality, CollateralLeg,
+    TriPartyRepo, TriPartyRepoTerms, TriPartyAgent,
+    PrimeBrokerage, PrimeBrokerageTerms, PBServiceType,
+    SecuritiesBorrowing,
+    StockLoan, StockLoanType, StockLoanTerms
 )
 
 __all__ = [
@@ -105,8 +117,9 @@ __all__ = [
     "NonDeliverableForward", "FXDigitalOption",
     # Credit (4)
     "CreditDefaultSwap", "CDSIndex", "TotalReturnSwap", "CreditLinkedNote",
-    # Equity (5)
+    # Equity (6)
     "EquitySwap", "EquityOption", "EquityForward", "VarianceSwap", "DividendSwap",
+    "EquityTRS", "EquityTRSType", "EquityTRSTerms",
     # Commodity (3)
     "CommoditySwap", "CommodityOption", "CommodityForward",
     # Cross-Currency (3)
@@ -122,12 +135,22 @@ __all__ = [
     # Alternatives (8)
     "CryptoSpot", "CryptoFuture", "CryptoPerpetual", "REIT",
     "CarbonCredit", "CarbonFuture", "PrivateEquityInterest", "HedgeFundInterest",
-    # Futures (5)
+    # Futures (6)
     "IndexFuture", "InterestRateFuture", "BondFuture", "VIXFuture", "SingleStockFuture",
-    # Fixed Income (20)
+    "CommodityFuture", "CommodityType", "CommodityFutureTerms", "CommoditySubClass",
+    # Fixed Income (21)
     "TreasuryBill", "TreasuryNote", "TreasuryBond", "TIPS",
     "UKGilt", "GermanBund", "JGB", "FrenchOAT",
     "MunicipalBond", "AgencyBond", "CorporateBond",
     "FloatingRateNote", "ConvertibleBond", "CommercialPaper", "MediumTermNote",
     "MBS", "ABS", "CDO", "CLO", "ZeroCouponBond",
+    "BondTRS", "BondTRSTerms", "BondTRSUnderlyingType", "BondTRSReturnType", "BondTRSResetType",
+    # SFT (7)
+    "MarginLoan", "MarginLoanTerms", "MarginLoanType",
+    "MarginLending", "LoanPurpose",
+    "CollateralSwap", "CollateralQuality", "CollateralLeg",
+    "TriPartyRepo", "TriPartyRepoTerms", "TriPartyAgent",
+    "PrimeBrokerage", "PrimeBrokerageTerms", "PBServiceType",
+    "SecuritiesBorrowing",
+    "StockLoan", "StockLoanType", "StockLoanTerms",
 ]

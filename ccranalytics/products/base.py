@@ -47,6 +47,10 @@ class AssetClass(Enum):
     COMMODITY = "commodity"
     CROSS_CURRENCY = "cross_currency"
     REPO = "repo"
+    FIXED_INCOME = "fixed_income"
+    SFT = "securities_financing"
+    MONEY_MARKET = "money_market"
+    ALTERNATIVES = "alternatives"
 
 
 class ProductType(Enum):
@@ -142,6 +146,18 @@ class ProductType(Enum):
     BOND_FUTURE = "bond_future"
     VIX_FUTURE = "vix_future"
     SSF = "single_stock_future"
+    COMMODITY_FUTURE = "commodity_future"
+    
+    # Total Return Swaps
+    EQUITY_TRS = "equity_trs"
+    BOND_TRS = "bond_trs"
+    
+    # Securities Financing Transactions (SFT)
+    MARGIN_LOAN = "margin_loan"
+    COLLATERAL_SWAP = "collateral_swap"
+    TRI_PARTY_REPO = "tri_party_repo"
+    PRIME_BROKERAGE = "prime_brokerage"
+    STOCK_LOAN = "stock_loan"
     
     # Fixed Income - Government
     TREASURY_BILL = "treasury_bill"

@@ -1,5 +1,5 @@
 """
-CCR Analytics Engine - Product Type Enumeration (v1.2.0)
+CCR Analytics Engine - Product Type Enumeration (v1.3.0)
 =========================================================
 
 Complete enumeration of all supported product types.
@@ -43,11 +43,13 @@ class ProductType(Enum):
     EQUITY_FORWARD = "equity_forward"
     VARIANCE_SWAP = "variance_swap"
     DIVIDEND_SWAP = "dividend_swap"
+    EQUITY_TRS = "equity_total_return_swap"
     
     # Commodity Products
     COMMODITY_SWAP = "commodity_swap"
     COMMODITY_OPTION = "commodity_option"
     COMMODITY_FORWARD = "commodity_forward"
+    COMMODITY_FUTURE = "commodity_future"
     
     # Cross-Currency Products
     XCCY_SWAP = "cross_currency_swap"
@@ -114,6 +116,7 @@ class ProductType(Enum):
     CONVERTIBLE_BOND = "convertible_bond"
     COMMERCIAL_PAPER = "commercial_paper"
     MTN = "medium_term_note"
+    BOND_TRS = "bond_total_return_swap"
     
     # Fixed Income - Structured
     MBS = "mortgage_backed_securities"
@@ -124,6 +127,11 @@ class ProductType(Enum):
     
     # Government Bond (generic)
     GOVERNMENT_BOND = "government_bond"
+    
+    # Securities Financing Transactions (SFT)
+    SECURITIES_BORROWING = "securities_borrowing"
+    MARGIN_LENDING = "margin_lending"
+    COLLATERAL_SWAP = "collateral_swap"
 
 
 __all__ = ["ProductType"]

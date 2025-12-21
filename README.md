@@ -26,13 +26,15 @@ The CCR Analytics Engine is a professional-grade Python library for comprehensiv
 
 ### Key Highlights
 
-- **80+ Financial Products** across 12 asset classes with full pricing and CCR exposure calculation
+- **90+ Financial Products** across 13 asset classes with full pricing and CCR exposure calculation
 - **16 Risk Calculators** with dual Python and QuantLib implementations
 - **55+ Domain Models** for trades, portfolios, counterparties, curves, and scenarios
 - **7 Stochastic Processes** for Monte Carlo simulation (GBM, OU, CIR, Vasicek, Hull-White, Heston, Merton Jump)
 - **Multi-threaded Engine** for high-performance parallel computation
 - **SA-CCR Implementation** fully compliant with Basel III/IV regulatory framework
 - **XVA Suite** including CVA, DVA, FVA, KVA, MVA, and ColVA calculations
+- **Comprehensive SFT Coverage** including Stock Loans, Securities Borrowing, Collateral Swaps, Prime Brokerage
+- **Total Return Swaps** for Equity and Bond underlyings with full CCR analytics
 
 ---
 
@@ -54,22 +56,23 @@ The CCR Analytics Engine is a professional-grade Python library for comprehensiv
 
 ## Features
 
-### Financial Products (80+ Implementations)
+### Financial Products (90+ Implementations)
 
 | Category | Count | Products |
 |----------|-------|----------|
 | **Interest Rate** | 8 | IRS, OIS, FRA, Cap, Floor, Swaption, Basis Swap, IRSLeg |
 | **FX** | 6 | Forward, Swap, Option, Barrier Option, NDF, Digital Option |
 | **Credit** | 4 | CDS, CDS Index, Total Return Swap, Credit Linked Note |
-| **Equity Derivatives** | 5 | Swap, Option, Forward, Variance Swap, Dividend Swap |
+| **Equity Derivatives** | 6 | Swap, Option, Forward, Variance Swap, Dividend Swap, **Equity TRS** |
 | **Commodity** | 3 | Swap, Option, Forward |
 | **Cross-Currency** | 3 | XCCY Swap, Basis Swap, MTM Swap |
-| **Repo/Securities Financing** | 4 | Repo, Reverse Repo, Securities Lending, Buy/Sell Back |
+| **Repo** | 4 | Repo, Reverse Repo, Securities Lending, Buy/Sell Back |
+| **SFT** | 7 | Margin Loan, Margin Lending, Collateral Swap, Tri-Party Repo, Prime Brokerage, Securities Borrowing, **Stock Loan** |
 | **Money Market** | 7 | CD, BA, Eurodollar, Fed Funds, MMF, Time Deposit, Discount Note |
 | **Stocks & ETFs** | 8 | Common Stock, ADR, GDR, Preferred, Warrant, ETF, Mutual Fund, Index Position |
 | **Alternatives** | 8 | Crypto (Spot/Future/Perpetual), REIT, Carbon Credit/Future, PE, Hedge Fund |
-| **Futures** | 5 | Index, Interest Rate, Bond, VIX, Single Stock |
-| **Fixed Income** | 20 | Treasury (Bill/Note/Bond/TIPS), Gilts, Bunds, JGB, OAT, Muni, Agency, Corporate, FRN, Convertible, CP, MTN, MBS, ABS, CDO, CLO, Zero Coupon |
+| **Futures** | 6 | Index, Interest Rate, Bond, VIX, Single Stock, **Commodity Future** |
+| **Fixed Income** | 21 | Treasury (Bill/Note/Bond/TIPS), Gilts, Bunds, JGB, OAT, Muni, Agency, Corporate, FRN, Convertible, CP, MTN, MBS, ABS, CDO, CLO, Zero Coupon, **Bond TRS** |
 
 ### Risk Calculators (16 Types)
 
