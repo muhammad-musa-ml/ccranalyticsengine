@@ -930,7 +930,7 @@ Ashutosh Sinha | Email: ajsinha@gmail.com
     
     print("""
 ╔═══════════════════════════════════════════════════════════════════════════════╗
-║                         CCR Analytics Engine v1.2.0                          ║
+║                         CCR Analytics Engine v1.3.0                          ║
 ║                                                                               ║
 ║  Copyright © 2025-2030, All Rights Reserved                                  ║
 ║  Ashutosh Sinha | Email: ajsinha@gmail.com                                   ║

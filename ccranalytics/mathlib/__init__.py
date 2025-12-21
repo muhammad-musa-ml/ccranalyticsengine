@@ -1,33 +1,41 @@
-# Copyright © 2025-2030, All Rights Reserved
-# Ashutosh Sinha | Email: ajsinha@gmail.com
-#
-# Legal Notice: This module and the associated software architecture are proprietary
-# and confidential. Unauthorized copying, distribution, modification, or use is
-# strictly prohibited without explicit written permission from the copyright holder.
-#
-# Patent Pending: Certain architectural patterns and implementations described in
-# this module may be subject to patent applications.
-
 """
-CCR Analytics Engine - Math Module
-===================================
+CCR Analytics Engine - Math Module v1.3.0
+==========================================
+
+Copyright © 2025-2030, All Rights Reserved
+Ashutosh Sinha | Email: ajsinha@gmail.com
+
+Legal Notice: This module and the associated software architecture are proprietary 
+and confidential. Unauthorized copying, distribution, modification, or use is 
+strictly prohibited without explicit written permission from the copyright holder.
+
+---
 
 Mathematical utilities for CCR analytics including:
-- Stochastic path generation (GBM, OU, CIR, Heston, etc.)
+- Stochastic path generation
 - Monte Carlo simulation engines
 - Statistical utilities
 - Numerical methods
 
+Stochastic Processes (8):
+- GBM: Geometric Brownian Motion
+- OU: Ornstein-Uhlenbeck (mean-reverting)
+- CIR: Cox-Ingersoll-Ross (interest rates)
+- VASICEK: Vasicek interest rate model
+- HULL_WHITE: Hull-White one-factor model
+- BLACK_KARASINSKI: Black-Karasinski model
+- HESTON: Heston stochastic volatility
+- MERTON_JUMP: Merton jump diffusion
+
 Implementations:
-- Pure Python: Cross-platform, no external dependencies
-- QuantLib: High-performance, industry-standard library
+- Pure Python: Cross-platform, NumPy-based
+- QuantLib: High-performance C++ backend
 
 Usage:
-    from .mathlib import get_math_factory
-    from .mathlib.base import PathGenerationParams, ProcessType
+    from ccranalytics.mathlib import MathFactory, PathGenerationParams, ProcessType
     
-    factory = get_math_factory()
-    generator = factory.create_path_generator()
+    factory = MathFactory.get_instance()
+    generator = factory.create_path_generator(implementation='python')
     
     params = PathGenerationParams(
         initial_value=100.0,
@@ -40,6 +48,8 @@ Usage:
     
     result = generator.generate_paths(params, ProcessType.GBM)
 """
+
+__version__ = "1.3.0"
 
 from .base import (
     ProcessType,
@@ -57,6 +67,7 @@ from .base import (
 from .factory import MathFactory, get_math_factory
 
 __all__ = [
+    "__version__",
     # Enums
     'ProcessType',
     'ImplementationType',

@@ -1,33 +1,49 @@
 """
-CCR Analytics Engine v1.2.0
+CCR Analytics Engine v1.3.0
 ============================
 
 Comprehensive Counterparty Credit Risk Analytics Platform
 
-A professional-grade Python library for counterparty credit risk (CCR) analytics,
-providing complete implementations of exposure calculations, valuation adjustments,
-and regulatory capital metrics.
-
-Components:
-- products: 80+ financial products across 12 asset classes
-- calculator: 25+ risk calculators (Python & QuantLib)
-- models: 55+ domain models
-- core: Utilities and configuration
-- engine: High-performance CCR engine
-- mathlib: Mathematical library
-- data: Data generation and management
-
 Copyright © 2025-2030, All Rights Reserved
 Ashutosh Sinha | Email: ajsinha@gmail.com
+
+Legal Notice: This software and associated documentation are proprietary 
+and confidential. Unauthorized copying, distribution, modification, or use is 
+strictly prohibited without explicit written permission from the copyright holder.
+
+Patent Pending: Certain architectural patterns and implementations described 
+in this software may be subject to patent applications.
+
+Components:
+-----------
+- products: 81 financial products across 12 asset classes
+- calculator: 16 risk calculators (Python & QuantLib implementations)
+- models: 55+ domain models for trades, portfolios, counterparties
+- core: Configuration, logging, timing, validation utilities
+- engine: High-performance multi-threaded CCR calculation engine
+- mathlib: Mathematical library with 7 stochastic processes
+- data: Test data generation and management
+
+Quick Start:
+-----------
+    from ccranalytics.engine import CCREngine
+    from ccranalytics.calculator import CalculatorType
+    
+    with CCREngine() as engine:
+        result = engine.calculate(CalculatorType.PD, {'rating': 'BBB'})
+        print(f"PD: {result.value:.4%}")
+
+For more examples, see docs/quickstart.md
 """
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 __author__ = "Ashutosh Sinha"
 __email__ = "ajsinha@gmail.com"
 __copyright__ = "Copyright © 2025-2030, All Rights Reserved"
+__license__ = "Proprietary"
 
-# Version info
-VERSION = (1, 2, 0)
+# Version info tuple
+VERSION = (1, 3, 0)
 VERSION_STRING = ".".join(map(str, VERSION))
 
 __all__ = [
@@ -35,6 +51,7 @@ __all__ = [
     "__author__",
     "__email__",
     "__copyright__",
+    "__license__",
     "VERSION",
     "VERSION_STRING",
 ]

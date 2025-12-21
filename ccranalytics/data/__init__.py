@@ -1,8 +1,6 @@
 """
-CCR Analytics Engine - Data Module
-==================================
-
-Test data generation utilities for the CCR Analytics Engine.
+CCR Analytics Engine - Data Module v1.3.0
+==========================================
 
 Copyright © 2025-2030, All Rights Reserved
 Ashutosh Sinha | Email: ajsinha@gmail.com
@@ -11,9 +9,37 @@ Legal Notice: This module and the associated software architecture are proprieta
 and confidential. Unauthorized copying, distribution, modification, or use is 
 strictly prohibited without explicit written permission from the copyright holder.
 
-Patent Pending: Certain architectural patterns and implementations described in 
-this module may be subject to patent applications.
+---
+
+Test data generation utilities for the CCR Analytics Engine.
+
+Features:
+- Trade portfolio generation (IRS, FX, Options, CDS, etc.)
+- Counterparty data with credit ratings
+- Market data generation (curves, volatilities, FX rates)
+- Stress scenario generation
+- Reproducible random data with seed control
+
+Data Classes:
+- GeneratedTrade: Complete trade data with MTM
+- GeneratedCounterparty: Counterparty with rating, PD, LGD
+- GeneratedMarketData: Full market data snapshot
+
+Usage:
+    from ccranalytics.data import DataGenerator, create_test_dataset
+    
+    # Quick dataset
+    dataset = create_test_dataset(num_trades=1000)
+    
+    # Detailed generation
+    generator = DataGenerator(seed=42)
+    counterparties, trades = generator.generate_portfolio(
+        num_counterparties=50,
+        trades_per_counterparty=(5, 20)
+    )
 """
+
+__version__ = "1.3.0"
 
 from .generator import (
     ProductType,
@@ -26,6 +52,7 @@ from .generator import (
 )
 
 __all__ = [
+    "__version__",
     "ProductType",
     "CreditRating",
     "GeneratedTrade",

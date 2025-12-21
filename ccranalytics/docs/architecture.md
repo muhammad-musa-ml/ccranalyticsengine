@@ -1,7 +1,16 @@
-# CCR Analytics Engine - Architecture Documentation
+# CCR Analytics Engine - Architecture Documentation v1.3.0
 
-Copyright © 2025-2030, All Rights Reserved  
+```
+Copyright © 2025-2030, All Rights Reserved
 Ashutosh Sinha | Email: ajsinha@gmail.com
+
+Legal Notice: This documentation and the software it describes are proprietary 
+and confidential. Unauthorized copying, distribution, modification, or use is 
+strictly prohibited without explicit written permission from the copyright holder.
+
+Patent Pending: Certain architectural patterns and implementations described 
+in this documentation may be subject to patent applications.
+```
 
 ---
 
@@ -14,100 +23,152 @@ Ashutosh Sinha | Email: ajsinha@gmail.com
 5. [Data Flow](#5-data-flow)
 6. [Threading Model](#6-threading-model)
 7. [Extension Points](#7-extension-points)
+8. [Deployment Considerations](#8-deployment-considerations)
 
 ---
 
 ## 1. Overview
 
-The CCR Analytics Engine is a high-performance, multi-threaded system designed for comprehensive counterparty credit risk analytics. It provides dual implementations (pure Python and QuantLib) for all calculations, enabling performance comparison and flexibility.
+The CCR Analytics Engine is a high-performance, multi-threaded system designed for comprehensive counterparty credit risk analytics. It provides dual implementations (pure Python and QuantLib) for all calculations, enabling performance comparison and production flexibility.
 
-### 1.1 Key Features
+### 1.1 Key Design Principles
 
-- **Dual Implementation**: Every calculator has both Python and QuantLib versions
-- **Multi-threaded Execution**: Concurrent calculation support via ThreadPoolExecutor
-- **Modular Design**: Clean separation of concerns across modules
-- **Factory Pattern**: Centralized object creation and management
-- **Protocol-Based Interfaces**: Type-safe abstractions using Python protocols
-- **Comprehensive Metrics**: Full suite of CCR metrics (PD, LGD, EAD, CVA, PFE, etc.)
-- **Stress Testing**: Historical, hypothetical, and reverse stress scenarios
-- **Monte Carlo Simulation**: Multiple stochastic process implementations
+| Principle | Implementation |
+|-----------|---------------|
+| **Dual Implementation** | Every calculator has Python and QuantLib versions |
+| **Multi-threaded** | Concurrent execution via ThreadPoolExecutor |
+| **Modular Design** | Clean separation across 8 modules |
+| **Factory Pattern** | Centralized object creation and caching |
+| **Protocol-Based** | Type-safe interfaces using Python protocols |
+| **Extensible** | Easy addition of new calculators, products, models |
 
 ### 1.2 Technology Stack
 
-- **Language**: Python 3.9+
-- **Numerical Computing**: NumPy, SciPy
-- **Financial Library**: QuantLib-Python (optional)
-- **Concurrency**: concurrent.futures, threading
-- **Configuration**: Properties file parser
-- **Logging**: Python logging with custom formatters
+| Component | Technology |
+|-----------|------------|
+| **Language** | Python 3.9+ |
+| **Numerical** | NumPy, SciPy |
+| **Financial** | QuantLib-Python (optional) |
+| **Concurrency** | concurrent.futures, threading |
+| **Configuration** | Custom properties parser |
+| **Logging** | Python logging with formatters |
+| **Type Hints** | Full typing support |
+
+### 1.3 System Statistics
+
+| Metric | Count |
+|--------|-------|
+| Python Source Files | 172 |
+| Documentation Files | 132 |
+| Financial Products | 81 |
+| Risk Calculators | 16 |
+| Domain Models | 55+ |
+| Stochastic Processes | 7 |
+| Total Lines of Code | ~50,000 |
 
 ---
 
 ## 2. System Architecture
 
+### 2.1 High-Level Architecture Diagram
+
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           CCR Analytics Engine                              │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                         Engine Module                                │   │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                 │   │
-│  │  │  CCREngine  │  │ TaskQueue   │  │ThreadPool   │                 │   │
-│  │  └─────────────┘  └─────────────┘  └─────────────┘                 │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                    │                                        │
-│                                    ▼                                        │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                      Calculator Module                               │   │
-│  │  ┌──────────────────────────┐  ┌──────────────────────────┐        │   │
-│  │  │    Python Calculators    │  │   QuantLib Calculators   │        │   │
-│  │  │  ┌────┐ ┌────┐ ┌────┐   │  │  ┌────┐ ┌────┐ ┌────┐   │        │   │
-│  │  │  │ PD │ │LGD │ │EAD │   │  │  │ PD │ │LGD │ │EAD │   │        │   │
-│  │  │  └────┘ └────┘ └────┘   │  │  └────┘ └────┘ └────┘   │        │   │
-│  │  │  ┌────┐ ┌────┐ ┌────┐   │  │  ┌────┐ ┌────┐ ┌────┐   │        │   │
-│  │  │  │CVA │ │PFE │ │ EE │   │  │  │CVA │ │PFE │ │ EE │   │        │   │
-│  │  │  └────┘ └────┘ └────┘   │  │  └────┘ └────┘ └────┘   │        │   │
-│  │  └──────────────────────────┘  └──────────────────────────┘        │   │
-│  │                      Calculator Factory                             │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                    │                                        │
-│          ┌─────────────────────────┴─────────────────────────┐             │
-│          ▼                                                   ▼             │
-│  ┌────────────────────┐                        ┌────────────────────┐      │
-│  │   Models Module    │                        │    Math Module     │      │
-│  │  ┌─────┐ ┌─────┐  │                        │  ┌─────────────┐   │      │
-│  │  │Trade│ │Curve│  │                        │  │PathGenerator│   │      │
-│  │  └─────┘ └─────┘  │                        │  └─────────────┘   │      │
-│  │  ┌─────┐ ┌─────┐  │                        │  ┌─────────────┐   │      │
-│  │  │Mkt  │ │Cpty │  │                        │  │ MonteCarlo  │   │      │
-│  │  │Data │ │     │  │                        │  │   Engine    │   │      │
-│  │  └─────┘ └─────┘  │                        │  └─────────────┘   │      │
-│  │   Model Factory   │                        │   Math Factory     │      │
-│  └────────────────────┘                        └────────────────────┘      │
-│          │                                                   │             │
-│          └─────────────────────────┬─────────────────────────┘             │
-│                                    ▼                                        │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                         Core Module                                  │   │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │   │
-│  │  │Properties│ │  Logger  │ │  Timer   │ │ThreadPool│ │Validators│  │   │
-│  │  │Configtor │ │          │ │          │ │          │ │          │  │   │
-│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘  │   │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐                            │   │
-│  │  │DateUtils │ │NumUtils  │ │Exceptions│                            │   │
-│  │  └──────────┘ └──────────┘ └──────────┘                            │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                    │                                        │
-│  ┌──────────────────┐  ┌──────────┴───────────┐  ┌──────────────────┐      │
-│  │   Data Module    │  │   Config Module      │  │   Docs Module    │      │
-│  │  ┌────────────┐  │  │  ┌────────────────┐  │  │  ┌────────────┐  │      │
-│  │  │ Generator  │  │  │  │ application.   │  │  │  │  Formulas  │  │      │
-│  │  │            │  │  │  │ properties     │  │  │  │ Architecture│ │      │
-│  │  └────────────┘  │  │  └────────────────┘  │  │  │ Quickstart │  │      │
-│  └──────────────────┘  └──────────────────────┘  └──────────────────┘      │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           CCR Analytics Engine v1.3.0                           │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  ┌────────────────────────────────────────────────────────────────────────────┐ │
+│  │                              ENGINE LAYER                                   │ │
+│  │  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │ │
+│  │  │    CCREngine     │  │   TaskQueue      │  │  ThreadPool      │         │ │
+│  │  │  - start/stop    │  │  - priority      │  │  - 8 workers     │         │ │
+│  │  │  - calculate     │  │  - batching      │  │  - concurrent    │         │ │
+│  │  │  - batch jobs    │  │  - callbacks     │  │  - futures       │         │ │
+│  │  └──────────────────┘  └──────────────────┘  └──────────────────┘         │ │
+│  └────────────────────────────────────────────────────────────────────────────┘ │
+│                                       │                                          │
+│                                       ▼                                          │
+│  ┌────────────────────────────────────────────────────────────────────────────┐ │
+│  │                           CALCULATOR LAYER                                  │ │
+│  │  ┌─────────────────────────────┐    ┌─────────────────────────────┐       │ │
+│  │  │    Python Calculators       │    │   QuantLib Calculators      │       │ │
+│  │  │  ┌─────┐ ┌─────┐ ┌─────┐   │    │  ┌─────┐ ┌─────┐ ┌─────┐   │       │ │
+│  │  │  │ PD  │ │ LGD │ │ EAD │   │    │  │ PD  │ │ LGD │ │ EAD │   │       │ │
+│  │  │  └─────┘ └─────┘ └─────┘   │    │  └─────┘ └─────┘ └─────┘   │       │ │
+│  │  │  ┌─────┐ ┌─────┐ ┌─────┐   │    │  ┌─────┐ ┌─────┐ ┌─────┐   │       │ │
+│  │  │  │ CVA │ │ PFE │ │ EE  │   │    │  │ CVA │ │ PFE │ │ EE  │   │       │ │
+│  │  │  └─────┘ └─────┘ └─────┘   │    │  └─────┘ └─────┘ └─────┘   │       │ │
+│  │  │  ┌─────┐ ┌─────┐ ┌─────┐   │    │  ┌─────┐ ┌─────┐ ┌─────┐   │       │ │
+│  │  │  │ EC  │ │ IM  │ │SACCR│   │    │  │ EC  │ │ IM  │ │SACCR│   │       │ │
+│  │  │  └─────┘ └─────┘ └─────┘   │    │  └─────┘ └─────┘ └─────┘   │       │ │
+│  │  └─────────────────────────────┘    └─────────────────────────────┘       │ │
+│  │                        CalculatorFactory                                   │ │
+│  └────────────────────────────────────────────────────────────────────────────┘ │
+│                                       │                                          │
+│          ┌────────────────────────────┼────────────────────────────┐            │
+│          ▼                            ▼                            ▼            │
+│  ┌──────────────────┐      ┌──────────────────┐      ┌──────────────────┐      │
+│  │   MODELS LAYER   │      │   PRODUCTS LAYER │      │   MATHLIB LAYER  │      │
+│  │                  │      │                  │      │                  │      │
+│  │  Trade           │      │  Interest Rate   │      │  PathGenerator   │      │
+│  │  Portfolio       │      │  FX              │      │  - GBM           │      │
+│  │  Counterparty    │      │  Credit          │      │  - OU            │      │
+│  │  NettingSet      │      │  Equity          │      │  - CIR           │      │
+│  │  YieldCurve      │      │  Commodity       │      │  - Vasicek       │      │
+│  │  CreditCurve     │      │  CrossCurrency   │      │  - Hull-White    │      │
+│  │  Scenario        │      │  Repo            │      │  - Heston        │      │
+│  │  ExposureProfile │      │  MoneyMarket     │      │  - Merton Jump   │      │
+│  │  CreditRating    │      │  Stocks          │      │                  │      │
+│  │                  │      │  Alternatives    │      │  MonteCarloEngine│      │
+│  │  ModelFactory    │      │  Futures         │      │  StatisticalUtils│      │
+│  │                  │      │  FixedIncome     │      │                  │      │
+│  └──────────────────┘      └──────────────────┘      └──────────────────┘      │
+│          │                            │                            │            │
+│          └────────────────────────────┼────────────────────────────┘            │
+│                                       ▼                                          │
+│  ┌────────────────────────────────────────────────────────────────────────────┐ │
+│  │                              CORE LAYER                                     │ │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐              │ │
+│  │  │ Properties │ │   Logger   │ │   Timer    │ │ ThreadPool │              │ │
+│  │  │Configurator│ │            │ │            │ │  Manager   │              │ │
+│  │  └────────────┘ └────────────┘ └────────────┘ └────────────┘              │ │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐              │ │
+│  │  │ Validators │ │ DateUtils  │ │NumericUtils│ │ Exceptions │              │ │
+│  │  └────────────┘ └────────────┘ └────────────┘ └────────────┘              │ │
+│  └────────────────────────────────────────────────────────────────────────────┘ │
+│                                       │                                          │
+│  ┌────────────────┐  ┌────────────────┴───────────────┐  ┌────────────────┐    │
+│  │   DATA LAYER   │  │        CONFIG LAYER            │  │   DOCS LAYER   │    │
+│  │  DataGenerator │  │  application.properties        │  │  130+ markdown │    │
+│  │  TestDataset   │  │  Environment Variables         │  │  files         │    │
+│  └────────────────┘  └────────────────────────────────┘  └────────────────┘    │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 2.2 Module Dependencies
+
+```
+                    ┌─────────────┐
+                    │   engine    │
+                    └──────┬──────┘
+                           │
+           ┌───────────────┼───────────────┐
+           ▼               ▼               ▼
+    ┌────────────┐  ┌────────────┐  ┌────────────┐
+    │ calculator │  │   models   │  │  mathlib   │
+    └──────┬─────┘  └──────┬─────┘  └──────┬─────┘
+           │               │               │
+           └───────────────┼───────────────┘
+                           ▼
+                    ┌────────────┐
+                    │  products  │
+                    └──────┬─────┘
+                           │
+                           ▼
+                    ┌────────────┐
+                    │    core    │
+                    └────────────┘
 ```
 
 ---
@@ -116,136 +177,145 @@ The CCR Analytics Engine is a high-performance, multi-threaded system designed f
 
 ### 3.1 Core Module (`ccranalytics/core/`)
 
-Provides foundational utilities used across all modules.
+Foundational utilities used across all modules.
 
-| Component | Description |
-|-----------|-------------|
-| `properties_configurator.py` | Configuration file parser with environment variable support |
-| `logger.py` | Customized logging with rotation and formatting |
-| `timer.py` | Performance timing utilities and decorators |
-| `thread_pool.py` | Custom thread pool implementation |
-| `exceptions.py` | Custom exception hierarchy |
-| `validators.py` | Data validation utilities |
-| `date_utils.py` | Date manipulation and business day calculations |
-| `numeric_utils.py` | Numerical computation helpers |
+| File | Class/Function | Description |
+|------|----------------|-------------|
+| `properties_configurator.py` | `PropertiesConfigurator` | Configuration with auto-reload, precedence chain |
+| `logger.py` | `Logger`, `get_logger` | Thread-safe logging with formatting |
+| `timer.py` | `Timer`, `timed` | Performance timing, context manager, decorator |
+| `thread_pool.py` | `ThreadPoolManager` | Managed ThreadPoolExecutor wrapper |
+| `exceptions.py` | `CCRException` hierarchy | ConfigurationError, CalculationError, ModelError, DataError, ValidationError, CurveError |
+| `validators.py` | `Validators` | Input validation: not_none, positive, probability, in_range |
+| `date_utils.py` | `DateUtils` | Business days, year fractions, schedule generation |
+| `numeric_utils.py` | `NumericUtils` | Interpolation, norm_cdf/pdf/inv, statistics |
 
-### 3.2 Models Module (`ccranalytics/models/`)
-
-Domain models representing financial entities.
-
-| Component | Description |
-|-----------|-------------|
-| `base.py` | Base classes and protocols |
-| `trade.py` | Trade representation |
-| `curve.py` | Yield curves and discount factors |
-| `market_data.py` | Market data containers |
-| `counterparty.py` | Counterparty information |
-| `products.py` | Financial product definitions (IRS, FX, CDS, etc.) |
-| `factory.py` | Model factory for object creation |
-
-### 3.3 Calculator Module (`ccranalytics/calculator/`)
+### 3.2 Calculator Module (`ccranalytics/calculator/`)
 
 All CCR metric calculators with dual implementations.
 
-#### Python Implementation (`calculator/python/`)
-| Calculator | Metrics |
-|------------|---------|
-| `pd_calculator.py` | Probability of Default |
-| `lgd_calculator.py` | Loss Given Default |
-| `ead_calculator.py` | Exposure at Default |
-| `el_calculator.py` | Expected Loss |
-| `ce_calculator.py` | Current Exposure |
-| `pfe_calculator.py` | Potential Future Exposure |
-| `ee_calculator.py` | Expected Exposure |
-| `cva_calculator.py` | Credit Valuation Adjustment |
-| `ec_calculator.py` | Economic Capital |
-| `raroc_calculator.py` | Risk-Adjusted Return on Capital |
-| `im_calculator.py` | Initial Margin |
-| `stress_calculators.py` | Stress Testing & Peak Exposure |
+#### Base Components
 
-#### QuantLib Implementation (`calculator/qlib/`)
-Same set of calculators using QuantLib for enhanced performance and accuracy.
+| File | Class | Description |
+|------|-------|-------------|
+| `base.py` | `BaseCalculator` | Abstract base with calculate(), details() |
+| `base.py` | `CalculatorType` | Enum: PD, LGD, EAD, EL, CE, PFE, EE, CVA, EC, RAROC, IM, etc. |
+| `base.py` | `CalculationResult` | Result container with value, metadata, warnings |
+| `base.py` | `ImplementationType` | PYTHON or QUANTLIB |
+| `factory.py` | `CalculatorFactory` | Singleton factory with caching |
 
-### 3.4 Math Module (`ccranalytics/mathlib/`)
+#### Python Implementations (`calculator/python/`)
 
-Mathematical utilities for simulation and path generation.
+| Calculator | Metrics | Methods |
+|------------|---------|---------|
+| `pd_calculator.py` | Probability of Default | Merton, Rating-based, Reduced-form |
+| `lgd_calculator.py` | Loss Given Default | Workout, Market-implied, Regulatory |
+| `ead_calculator.py` | Exposure at Default | Current, CCF-based, SA-CCR |
+| `el_calculator.py` | Expected Loss | EL = PD × LGD × EAD |
+| `ce_calculator.py` | Current Exposure | MTM-based, Collateral-adjusted |
+| `pfe_calculator.py` | Potential Future Exposure | Monte Carlo, Parametric |
+| `ee_calculator.py` | Expected Exposure | Profile generation, EPE, EEE |
+| `cva_calculator.py` | Credit Valuation Adjustment | Unilateral, Bilateral |
+| `ec_calculator.py` | Economic Capital | Vasicek, Gordy, Basel IRB |
+| `raroc_calculator.py` | Risk-Adjusted Return | RAROC = (Revenue - EL) / EC |
+| `im_calculator.py` | Initial Margin | ISDA SIMM methodology |
+| `stress_calculators.py` | Stress Testing | Historical, Hypothetical, Reverse |
+| `xva_calculators.py` | XVA Suite | DVA, FVA, KVA, MVA, ColVA |
+| `saccr_calculator.py` | SA-CCR | Basel III/IV compliant |
+
+#### QuantLib Implementations (`calculator/qlib/`)
+
+Mirror implementations using QuantLib for enhanced performance.
+
+### 3.3 Products Module (`ccranalytics/products/`)
+
+81 financial products across 12 asset classes.
+
+| Category | Count | Products |
+|----------|-------|----------|
+| Interest Rate | 8 | InterestRateSwap, OvernightIndexSwap, ForwardRateAgreement, InterestRateCap, InterestRateFloor, Swaption, BasisSwap, IRSLeg |
+| FX | 6 | FXForward, FXSwap, FXOption, FXBarrierOption, NonDeliverableForward, FXDigitalOption |
+| Credit | 4 | CreditDefaultSwap, CDSIndex, TotalReturnSwap, CreditLinkedNote |
+| Equity | 5 | EquitySwap, EquityOption, EquityForward, VarianceSwap, DividendSwap |
+| Commodity | 3 | CommoditySwap, CommodityOption, CommodityForward |
+| Cross-Currency | 3 | CrossCurrencySwap, CrossCurrencyBasisSwap, MTMCrossCurrencySwap |
+| Repo | 4 | Repo, ReverseRepo, SecuritiesLending, BuySellBack |
+| Money Market | 7 | CertificateOfDeposit, BankersAcceptance, EurodollarDeposit, FederalFunds, MoneyMarketFund, TimeDeposit, DiscountNote |
+| Stocks | 8 | CommonStock, ADR, GDR, PreferredStock, Warrant, ETF, MutualFund, IndexPosition |
+| Alternatives | 8 | CryptoSpot, CryptoFuture, CryptoPerpetual, REIT, CarbonCredit, CarbonFuture, PrivateEquityInterest, HedgeFundInterest |
+| Futures | 5 | IndexFuture, InterestRateFuture, BondFuture, VIXFuture, SingleStockFuture |
+| Fixed Income | 20 | TreasuryBill, TreasuryNote, TreasuryBond, TIPS, UKGilt, GermanBund, JGB, FrenchOAT, MunicipalBond, AgencyBond, CorporateBond, FloatingRateNote, ConvertibleBond, CommercialPaper, MediumTermNote, MBS, ABS, CDO, CLO, ZeroCouponBond |
+
+### 3.4 Models Module (`ccranalytics/models/`)
+
+55+ domain models for CCR analytics.
+
+| File | Models | Description |
+|------|--------|-------------|
+| `trade.py` | Trade, TradeType, TradeStatus | Trade representation |
+| `portfolio.py` | Portfolio, PortfolioSnapshot, PortfolioSummary | Portfolio aggregation |
+| `counterparty.py` | Counterparty, NettingSet, CollateralAgreement | Counterparty models |
+| `curve.py` | Curve, YieldCurve, CreditCurve, VolatilitySurface | Market curves |
+| `market_data.py` | MarketData, MarketDataSnapshot, Quote | Market data containers |
+| `products.py` | 27 product model classes | Simplified product models |
+| `scenario.py` | Scenario, ScenarioSet, MonteCarloScenarioSet | Stress testing |
+| `exposure.py` | ExposureProfile, ExposureResult, SACCRResult | Exposure outputs |
+| `rating.py` | CreditRating, RatingHistory, TransitionMatrix | Rating models |
+| `collateral.py` | Collateral types and agreements | Collateral handling |
+| `agreement.py` | Legal agreement models | ISDA, CSA |
+| `limit.py` | Credit limit models | Limit monitoring |
+| `factory.py` | ModelFactory | Model creation factory |
+
+### 3.5 MathLib Module (`ccranalytics/mathlib/`)
+
+Mathematical utilities for simulation.
 
 | Component | Description |
 |-----------|-------------|
-| `base.py` | Base classes, protocols, and configurations |
-| `python/path_generator.py` | Pure Python path generation |
-| `qlib/path_generator.py` | QuantLib-based path generation |
-| `factory.py` | Math component factory |
+| `ProcessType` enum | GBM, ORNSTEIN_UHLENBECK, CIR, VASICEK, HULL_WHITE, HESTON, MERTON_JUMP |
+| `PathGenerationParams` | initial_value, drift, volatility, maturity, num_paths, num_steps |
+| `PathResult` | paths array, statistics, metadata |
+| `BasePathGenerator` | Abstract path generator with Box-Muller |
+| `MonteCarloConfig` | Simulation configuration |
+| `MathFactory` | Factory for math components |
 
-#### Supported Stochastic Processes
-- Geometric Brownian Motion (GBM)
-- Ornstein-Uhlenbeck (OU)
-- Cox-Ingersoll-Ross (CIR)
-- Vasicek
-- Hull-White
-- Heston Stochastic Volatility
-- Merton Jump-Diffusion
+### 3.6 Engine Module (`ccranalytics/engine/`)
 
-### 3.5 Engine Module (`ccranalytics/engine/`)
-
-The main execution engine for CCR analytics.
+Main execution engine.
 
 | Component | Description |
 |-----------|-------------|
-| `ccr_engine.py` | Main CCREngine class with multi-threading support |
+| `CCREngine` | Main orchestrator: start(), stop(), calculate(), submit_job() |
+| `EngineStatus` | IDLE, RUNNING, PAUSED, STOPPED, ERROR |
+| `CalculationTask` | Single calculation with priority, callback |
+| `CalculationJob` | Batch of tasks with parallel/sequential mode |
+| `TaskResult` | Individual task result |
+| `JobResult` | Batch job result with statistics |
 
-### 3.6 Data Module (`ccranalytics/data/`)
+### 3.7 Data Module (`ccranalytics/data/`)
 
-Test data generation utilities.
-
-| Component | Description |
-|-----------|-------------|
-| `generator.py` | Generate counterparties, trades, market data, stress scenarios |
-
-### 3.7 Config Module (`ccranalytics/config/`)
-
-Configuration files.
+Test data generation.
 
 | Component | Description |
 |-----------|-------------|
-| `application.properties` | Main configuration file |
-
-### 3.8 Docs Module (`ccranalytics/docs/`)
-
-Documentation.
-
-| Component | Description |
-|-----------|-------------|
-| `mathematical_formulas.md` | Mathematical documentation |
-| `architecture.md` | This document |
-| `quickstart.md` | Getting started guide |
-| `api_reference.md` | API documentation |
+| `DataGenerator` | Generates trades, counterparties, market data |
+| `create_test_dataset()` | Quick dataset creation with num_trades parameter |
+| `GeneratedTrade` | Trade data class |
+| `GeneratedCounterparty` | Counterparty data class |
+| `GeneratedMarketData` | Market data snapshot |
 
 ---
 
 ## 4. Design Patterns
 
-### 4.1 Protocol Pattern (Interface)
-
-```python
-class DataCalculatorLike(Protocol):
-    """Protocol defining calculator interface."""
-    
-    def __init__(self, name: str, config: Dict[str, Any]): ...
-    
-    def calculate(self, data: Any) -> Any: ...
-    
-    def details(self) -> Dict[str, Any]: ...
-```
-
-### 4.2 Factory Pattern
+### 4.1 Factory Pattern
 
 ```python
 class CalculatorFactory:
-    """Centralized calculator creation."""
+    """Singleton factory with calculator caching."""
     
     _instance = None
-    _calculators: Dict[Tuple, BaseCalculator] = {}
+    _calculators: Dict[str, BaseCalculator] = {}
     
     @classmethod
     def get_instance(cls) -> 'CalculatorFactory':
@@ -256,44 +326,61 @@ class CalculatorFactory:
     def get_calculator(
         self,
         calc_type: CalculatorType,
-        implementation: str = "python"
+        implementation: str = 'python'
     ) -> BaseCalculator:
-        ...
+        key = f"{calc_type.value}_{implementation}"
+        if key not in self._calculators:
+            self._calculators[key] = self._create(calc_type, implementation)
+        return self._calculators[key]
 ```
 
-### 4.3 Template Method Pattern
+### 4.2 Strategy Pattern
 
 ```python
 class BaseCalculator(ABC):
-    """Base calculator with template method."""
-    
-    def calculate(self, data: Any) -> CalculationResult:
-        self._validate_input(data)
-        start_time = time.time()
-        result = self._perform_calculation(data)
-        elapsed = time.time() - start_time
-        return CalculationResult(result, elapsed, self._name)
+    """Strategy interface for calculations."""
     
     @abstractmethod
-    def _perform_calculation(self, data: Any) -> Any:
-        """Subclasses implement this."""
+    def _calculate_impl(self, data: Any) -> T:
+        """Subclasses implement specific calculation logic."""
         pass
+    
+    def calculate(self, data: Any) -> CalculationResult:
+        """Template method wrapping strategy."""
+        result_value = self._calculate_impl(data)
+        return CalculationResult(value=result_value, ...)
 ```
 
-### 4.4 Strategy Pattern
+### 4.3 Protocol Pattern
 
 ```python
-# Different PD calculation strategies
-class PDCalculator(BaseCalculator):
-    def _perform_calculation(self, data: Any) -> float:
-        method = data.get('method', 'through_the_cycle')
-        
-        if method == 'point_in_time':
-            return self._calculate_pit_pd(data)
-        elif method == 'through_the_cycle':
-            return self._calculate_ttc_pd(data)
-        elif method == 'merton':
-            return self._calculate_merton_pd(data)
+class PathGeneratorLike(Protocol):
+    """Protocol defining path generator interface."""
+    
+    def generate_paths(
+        self,
+        params: PathGenerationParams,
+        process_type: ProcessType
+    ) -> PathResult:
+        ...
+```
+
+### 4.4 Context Manager Pattern
+
+```python
+class CCREngine:
+    """Engine with context manager support."""
+    
+    def __enter__(self) -> 'CCREngine':
+        self.start()
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self.stop()
+
+# Usage
+with CCREngine() as engine:
+    result = engine.calculate(CalculatorType.PD, data)
 ```
 
 ### 4.5 Singleton Pattern
@@ -303,10 +390,12 @@ class PropertiesConfigurator:
     """Singleton configuration manager."""
     
     _instance = None
+    _lock = threading.Lock()
     
     def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
+        with cls._lock:
+            if cls._instance is None:
+                cls._instance = super().__new__(cls)
         return cls._instance
 ```
 
@@ -390,25 +479,27 @@ Market Data + Trades
 │  │       │            │            │            │           │  │
 │  │       ▼            ▼            ▼            ▼           │  │
 │  │  ┌──────────────────────────────────────────────────┐   │  │
-│  │  │               Task Queue                          │   │  │
-│  │  │  [Task1] [Task2] [Task3] [Task4] [Task5] ...     │   │  │
+│  │  │               Task Queue (Priority)               │   │  │
+│  │  │  [CRITICAL] [HIGH] [NORMAL] [LOW] ...            │   │  │
 │  │  └──────────────────────────────────────────────────┘   │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │                                                                 │
-│  Task Distribution:                                            │
-│  - Each calculator runs in its own thread                      │
-│  - Jobs can be parallel or sequential                          │
-│  - Priority queue for critical calculations                    │
-│  - Callbacks supported for async operations                    │
+│  Configuration:                                                │
+│  - Default workers: 8                                          │
+│  - Configurable via engine.max_workers                         │
+│  - Thread name prefix: "ccr_engine"                            │
 └────────────────────────────────────────────────────────────────┘
 ```
 
-### 6.2 Thread Safety
+### 6.2 Thread Safety Mechanisms
 
-- **Immutable Data**: Calculation inputs are immutable
-- **Thread-Local Storage**: Calculator instances cached per-thread
-- **Lock-Free Queues**: Task submission uses thread-safe queues
-- **Atomic Operations**: Statistics updated atomically
+| Mechanism | Usage |
+|-----------|-------|
+| **Immutable Data** | Calculation inputs are frozen dataclasses |
+| **Thread-Local Cache** | Calculator instances cached per-thread |
+| **Lock-Free Queues** | Task submission uses concurrent queues |
+| **Atomic Statistics** | Engine stats updated with locks |
+| **Context Managers** | Automatic cleanup on exit |
 
 ---
 
@@ -416,35 +507,40 @@ Market Data + Trades
 
 ### 7.1 Adding a New Calculator
 
-1. Create calculator class in `calculator/python/`:
 ```python
+# 1. Create calculator in calculator/python/new_metric_calculator.py
+from ..base import BaseCalculator, CalculatorType, CalculationResult
+
 class NewMetricCalculator(BaseCalculator):
-    def __init__(self, name: str, config: Dict[str, Any]):
-        super().__init__(name, CalculatorType.NEW_METRIC, config)
+    @property
+    def calculator_type(self) -> CalculatorType:
+        return CalculatorType.NEW_METRIC
     
-    def _perform_calculation(self, data: Any) -> float:
-        # Implementation
+    def _calculate_impl(self, data: Any) -> float:
+        # Implementation logic
         return result
-```
 
-2. Add QuantLib version in `calculator/qlib/`
+# 2. Add to CalculatorType enum in base.py
+class CalculatorType(Enum):
+    NEW_METRIC = "new_metric"
 
-3. Register in factory:
-```python
-# In calculator/factory.py
-CalculatorType.NEW_METRIC: {
-    'python': 'NewMetricCalculator',
-    'quantlib': 'QLNewMetricCalculator'
+# 3. Register in factory.py
+CALCULATOR_REGISTRY = {
+    CalculatorType.NEW_METRIC: {
+        'python': NewMetricCalculator,
+        'quantlib': QLNewMetricCalculator
+    }
 }
 ```
 
 ### 7.2 Adding a New Stochastic Process
 
-1. Add process type to `ProcessType` enum in `math/base.py`
-
-2. Implement in both path generators:
 ```python
-# In math/python/path_generator.py
+# 1. Add to ProcessType enum in mathlib/base.py
+class ProcessType(Enum):
+    NEW_PROCESS = "new_process"
+
+# 2. Implement in path_generator.py
 def _generate_new_process(self, params: PathGenerationParams) -> np.ndarray:
     # Implementation
     return paths
@@ -452,40 +548,93 @@ def _generate_new_process(self, params: PathGenerationParams) -> np.ndarray:
 
 ### 7.3 Adding a New Product
 
-1. Create product class in `models/products.py`:
 ```python
+# 1. Create product in products/python/category/new_product.py
 @dataclass
-class NewProduct(Product):
+class NewProduct(BaseProduct):
     specific_field: float
     
-    def value(self, market_data: Any) -> float:
-        # Valuation logic
-        return value
+    def calculate_npv(self, market_data: MarketData) -> float:
+        # Pricing logic
+        return npv
+    
+    def calculate_ccr_exposure(self) -> CCRExposureProfile:
+        # Exposure calculation
+        return profile
+
+# 2. Add to __init__.py exports
 ```
 
-2. Register in model factory
+---
+
+## 8. Deployment Considerations
+
+### 8.1 Performance Optimization
+
+| Strategy | Benefit |
+|----------|---------|
+| Use QuantLib implementation | 2-3x speedup for numerical calculations |
+| Increase thread count for I/O | Better parallelism for market data fetching |
+| Pre-generate Monte Carlo paths | Amortize simulation cost across portfolio |
+| Cache discount factors | Avoid repeated curve interpolation |
+| Use NumPy vectorization | 10-100x faster than Python loops |
+
+### 8.2 Scaling Guidelines
+
+| Portfolio Size | Recommended Workers | Expected Time |
+|---------------|---------------------|---------------|
+| < 1,000 trades | 4 | < 2 seconds |
+| 1,000 - 10,000 | 8 | 5-15 seconds |
+| 10,000 - 100,000 | 16 | 1-2 minutes |
+| > 100,000 | Distributed | Consider partitioning |
+
+### 8.3 Memory Management
+
+- Use streaming for large portfolios
+- Clear calculator caches periodically
+- Use memory-mapped arrays for massive simulations
+- Consider 64-bit Python for > 4GB datasets
 
 ---
 
-## Appendix: Performance Considerations
+## Appendix A: Configuration Reference
 
-### Memory Optimization
-- Use NumPy arrays for large datasets
-- Lazy loading of market data
-- Path generation with memory-mapped arrays for large simulations
+```properties
+# Engine
+engine.max_workers=8
+engine.default_implementation=python
+engine.timeout=300
 
-### Computation Optimization
-- Vectorized operations via NumPy
-- QuantLib for numerical integration
-- Cached discount factors and survival probabilities
-- Parallel Monte Carlo paths
+# Monte Carlo
+montecarlo.num_paths=10000
+montecarlo.num_steps=252
+montecarlo.seed=42
+montecarlo.antithetic=true
 
-### Scaling Guidelines
-- 8 workers for typical workloads
-- Increase workers for I/O-bound operations
-- Consider distributed computing for >100k trades
+# Calculators
+calculator.confidence_level=0.99
+calculator.time_horizon=1.0
+
+# Logging
+logging.level=INFO
+logging.format=%(asctime)s | %(levelname)-8s | %(name)s | %(message)s
+```
 
 ---
 
-*Document Version: 1.0.0*  
-*Last Updated: 2025*
+## Appendix B: Error Handling
+
+| Exception | When Raised |
+|-----------|-------------|
+| `ConfigurationError` | Invalid configuration file or missing required keys |
+| `CalculationError` | Calculation fails (e.g., negative PD) |
+| `ModelError` | Invalid model parameters |
+| `DataError` | Data validation failures |
+| `ValidationError` | Input validation failures |
+| `CurveError` | Curve interpolation/construction errors |
+
+---
+
+*Document Version: 1.3.0*  
+*Last Updated: December 2025*  
+*Copyright © 2025-2030 Ashutosh Sinha. All Rights Reserved.*

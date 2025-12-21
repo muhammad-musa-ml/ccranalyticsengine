@@ -1,51 +1,64 @@
-# Copyright © 2025-2030, All Rights Reserved
-# Ashutosh Sinha | Email: ajsinha@gmail.com
-#
-# Legal Notice: This module and the associated software architecture are proprietary
-# and confidential. Unauthorized copying, distribution, modification, or use is
-# strictly prohibited without explicit written permission from the copyright holder.
-#
-# Patent Pending: Certain architectural patterns and implementations described in
-# this module may be subject to patent applications.
-
 """
-CCR Analytics Engine - Engine Module
-=====================================
+CCR Analytics Engine - Engine Module v1.3.0
+============================================
 
-Main engine for CCR analytics calculations.
+Copyright © 2025-2030, All Rights Reserved
+Ashutosh Sinha | Email: ajsinha@gmail.com
+
+Legal Notice: This module and the associated software architecture are proprietary 
+and confidential. Unauthorized copying, distribution, modification, or use is 
+strictly prohibited without explicit written permission from the copyright holder.
+
+---
+
+High-performance, multi-threaded CCR analytics engine.
+
+Features:
+- Concurrent calculator execution via ThreadPoolExecutor
+- Multiple implementation support (Python/QuantLib)
+- Configurable calculation pipelines
+- Real-time analytics processing
+- Comprehensive result aggregation
+- Batch job processing with priority queues
+- Performance benchmarking (Python vs QuantLib)
+
+Components:
+- CCREngine: Main orchestrator for CCR calculations
+- EngineStatus: Engine state enumeration (IDLE, RUNNING, PAUSED, STOPPED, ERROR)
+- CalculationTask: Single calculation task definition
+- CalculationJob: Batch of calculation tasks
+- TaskResult: Individual task result
+- JobResult: Aggregated job results
 
 Usage:
-    from .engine import create_engine, CCREngine
+    from ccranalytics.engine import CCREngine
     
-    # Using context manager
-    with create_engine() as engine:
-        result = engine.calculate(CalculatorType.PD, input_data)
-    
-    # Manual lifecycle
-    engine = CCREngine()
-    engine.start()
-    result = engine.calculate(CalculatorType.CVA, input_data)
-    engine.stop()
+    with CCREngine() as engine:
+        result = engine.calculate(CalculatorType.CVA, input_data)
+        metrics = engine.calculate_ccr_metrics(trade_data)
 """
+
+__version__ = "1.3.0"
 
 from .ccr_engine import (
     CCREngine,
-    create_engine,
     EngineStatus,
     CalculationPriority,
     CalculationTask,
     CalculationJob,
     TaskResult,
-    JobResult
+    JobResult,
+    create_engine,
 )
 
 __all__ = [
-    'CCREngine',
-    'create_engine',
-    'EngineStatus',
-    'CalculationPriority',
-    'CalculationTask',
-    'CalculationJob',
-    'TaskResult',
-    'JobResult'
+    "__version__",
+    "CCREngine",
+    "EngineStatus",
+    "CalculationPriority",
+    "CalculationTask",
+    "CalculationJob",
+    "TaskResult",
+    "JobResult",
+    "create_engine",
 ]

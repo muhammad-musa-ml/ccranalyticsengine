@@ -1,202 +1,278 @@
-# CCR Analytics Engine v1.2.0
+# CCR Analytics Engine v1.3.0
 
-## Comprehensive Counterparty Credit Risk Analytics Platform
-
-A professional-grade Python library for counterparty credit risk (CCR) analytics, providing complete implementations of exposure calculations, valuation adjustments, and regulatory capital metrics.
+**Comprehensive Counterparty Credit Risk Analytics Platform**
 
 ---
 
-## 🚀 Features
+## Copyright Notice
 
-### Products (80+ Implementations)
-| Category | Products |
-|----------|----------|
-| **Interest Rate** | IRS, OIS, FRA, Cap, Floor, Swaption, Basis Swap |
-| **FX** | Forward, Swap, Option, Barrier, NDF, Digital |
-| **Credit** | CDS, CDS Index, TRS, Credit Linked Note |
-| **Equity** | Swap, Option, Forward, Variance Swap, Dividend Swap |
-| **Commodity** | Swap, Option, Forward |
-| **Cross-Currency** | XCCY Swap, Basis Swap, MTM Swap |
-| **Repo** | Repo, Reverse Repo, Securities Lending, Buy/Sell Back |
-| **Money Market** | CD, BA, Eurodollar, Fed Funds, MMF, Time Deposit |
-| **Stocks** | Common, ADR, GDR, Preferred, Warrant, ETF, Mutual Fund |
-| **Alternatives** | Crypto (Spot/Future/Perpetual), REIT, Carbon, PE, HF |
-| **Futures** | Index, IR, Bond, VIX, Single Stock |
-| **Fixed Income** | Treasury, Gilts, Bunds, MBS, ABS, CDO, CLO (20+ types) |
+```
+Copyright © 2025-2030, All Rights Reserved
+Ashutosh Sinha | Email: ajsinha@gmail.com
 
-### Calculators (25+ Types)
-| Category | Calculators |
-|----------|-------------|
-| **Credit Risk** | PD, LGD, EAD, Expected Loss |
-| **Exposure** | CE, PFE, EE, EEE, Peak, Stressed |
-| **Valuation Adjustments** | CVA, DVA, FVA, KVA, MVA, ColVA |
-| **Capital** | Economic Capital, RAROC |
-| **Margin** | Initial Margin (SIMM) |
-| **Regulatory** | SA-CCR |
+Legal Notice: This software and its associated documentation are proprietary 
+and confidential. Unauthorized copying, distribution, modification, or use is 
+strictly prohibited without explicit written permission from the copyright holder.
 
-### Models (55+ Types)
-- **Trade & Portfolio**: Trade, Portfolio, Netting Set
-- **Counterparty**: Counterparty, Collateral Agreement
-- **Market Data**: Curves, Surfaces, Snapshots
-- **Scenario**: Stress Testing, Monte Carlo
-- **Exposure**: Profiles, SA-CCR Results
-- **Rating**: Credit Ratings, Transition Matrices
+Patent Pending: Certain architectural patterns and implementations described 
+in this software may be subject to patent applications.
+```
 
 ---
 
-## 📦 Installation
+## Overview
+
+The CCR Analytics Engine is a professional-grade Python library for comprehensive counterparty credit risk (CCR) analytics. It provides complete implementations of exposure calculations, valuation adjustments, regulatory capital metrics, and a wide range of financial product models.
+
+### Key Highlights
+
+- **80+ Financial Products** across 12 asset classes with full pricing and CCR exposure calculation
+- **16 Risk Calculators** with dual Python and QuantLib implementations
+- **55+ Domain Models** for trades, portfolios, counterparties, curves, and scenarios
+- **7 Stochastic Processes** for Monte Carlo simulation (GBM, OU, CIR, Vasicek, Hull-White, Heston, Merton Jump)
+- **Multi-threaded Engine** for high-performance parallel computation
+- **SA-CCR Implementation** fully compliant with Basel III/IV regulatory framework
+- **XVA Suite** including CVA, DVA, FVA, KVA, MVA, and ColVA calculations
+
+---
+
+## Table of Contents
+
+1. [Features](#features)
+2. [Installation](#installation)
+3. [Quick Start](#quick-start)
+4. [Project Structure](#project-structure)
+5. [Module Reference](#module-reference)
+6. [Usage Examples](#usage-examples)
+7. [Configuration](#configuration)
+8. [Performance](#performance)
+9. [Documentation](#documentation)
+10. [Version History](#version-history)
+11. [License](#license)
+
+---
+
+## Features
+
+### Financial Products (80+ Implementations)
+
+| Category | Count | Products |
+|----------|-------|----------|
+| **Interest Rate** | 8 | IRS, OIS, FRA, Cap, Floor, Swaption, Basis Swap, IRSLeg |
+| **FX** | 6 | Forward, Swap, Option, Barrier Option, NDF, Digital Option |
+| **Credit** | 4 | CDS, CDS Index, Total Return Swap, Credit Linked Note |
+| **Equity Derivatives** | 5 | Swap, Option, Forward, Variance Swap, Dividend Swap |
+| **Commodity** | 3 | Swap, Option, Forward |
+| **Cross-Currency** | 3 | XCCY Swap, Basis Swap, MTM Swap |
+| **Repo/Securities Financing** | 4 | Repo, Reverse Repo, Securities Lending, Buy/Sell Back |
+| **Money Market** | 7 | CD, BA, Eurodollar, Fed Funds, MMF, Time Deposit, Discount Note |
+| **Stocks & ETFs** | 8 | Common Stock, ADR, GDR, Preferred, Warrant, ETF, Mutual Fund, Index Position |
+| **Alternatives** | 8 | Crypto (Spot/Future/Perpetual), REIT, Carbon Credit/Future, PE, Hedge Fund |
+| **Futures** | 5 | Index, Interest Rate, Bond, VIX, Single Stock |
+| **Fixed Income** | 20 | Treasury (Bill/Note/Bond/TIPS), Gilts, Bunds, JGB, OAT, Muni, Agency, Corporate, FRN, Convertible, CP, MTN, MBS, ABS, CDO, CLO, Zero Coupon |
+
+### Risk Calculators (16 Types)
+
+| Category | Calculator | Description |
+|----------|------------|-------------|
+| **Credit Risk** | `PD` | Probability of Default (Merton, Rating-based, Reduced-form) |
+| | `LGD` | Loss Given Default (Workout, Market-implied) |
+| | `EAD` | Exposure at Default (Current, Regulatory) |
+| | `EL` | Expected Loss = PD × LGD × EAD |
+| **Exposure** | `CE` | Current Exposure (MTM, Collateral-adjusted) |
+| | `PFE` | Potential Future Exposure (Monte Carlo, Parametric) |
+| | `EE` | Expected Exposure Profile |
+| | `EEE` | Effective Expected Exposure (Non-decreasing EE) |
+| | `PEAK_EXPOSURE` | Maximum Exposure over time horizon |
+| | `STRESSED_EXPOSURE` | Stressed market scenarios |
+| **Valuation Adjustments** | `CVA` | Credit Valuation Adjustment |
+| **Capital & Margin** | `EC` | Economic Capital (Vasicek, Gordy, Basel IRB) |
+| | `RAROC` | Risk-Adjusted Return on Capital |
+| | `IM` | Initial Margin (ISDA SIMM) |
+
+### Domain Models (55+ Types)
+
+| Module | Models |
+|--------|--------|
+| **Trade** | Trade, TradeType, TradeStatus |
+| **Portfolio** | Portfolio, PortfolioSnapshot, PortfolioSummary |
+| **Counterparty** | Counterparty, NettingSet, CollateralAgreement |
+| **Curve** | YieldCurve, CreditCurve, VolatilitySurface |
+| **Market Data** | MarketData, MarketDataSnapshot, Quote |
+| **Scenario** | Scenario, ScenarioSet, MonteCarloScenarioSet |
+| **Exposure** | ExposureProfile, ExposureResult, SACCRResult |
+| **Rating** | CreditRating, RatingHistory, TransitionMatrix |
+
+---
+
+## Installation
+
+### Prerequisites
+
+- Python 3.9 or higher
+- pip package manager
+
+### Install Dependencies
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-repo/ccranalytics.git
-cd ccranalytics
+# Required
+pip install numpy scipy
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Optional: Install QuantLib for high-performance calculations
+# Optional: QuantLib for high-performance calculations
 pip install QuantLib-Python
 ```
 
----
+### Running the Demo
 
-## 🔧 Quick Start
+```bash
+# Quick demo
+python main.py --quick
 
-### Calculate CVA
-```python
-from calculator.python import CVACalculator, CVAInput
+# Full demonstration
+python main.py
 
-cva_calc = CVACalculator()
-result = cva_calc.calculate(CVAInput(
-    exposure_profile=[100, 120, 110, 90, 70],
-    time_grid=[0.0, 0.25, 0.5, 0.75, 1.0],
-    pd_curve={0.25: 0.01, 0.5: 0.015, 0.75: 0.02, 1.0: 0.025},
-    lgd=0.45
-))
-print(f"CVA: ${result.cva:,.2f}")
+# Performance benchmarks
+python main.py --benchmark
+
+# Stress testing
+python main.py --stress
+
+# Or run as module
+python -m ccranalytics --quick
 ```
 
-### Create a Portfolio
-```python
-from models import Portfolio, InterestRateSwap
-from datetime import date
+---
 
-portfolio = Portfolio(name="Trading Book")
-swap = InterestRateSwap(
-    notional=10_000_000,
-    fixed_rate=0.05,
-    effective_date=date(2024, 1, 1),
-    maturity_date=date(2029, 1, 1)
+## Quick Start
+
+### Basic CCR Calculation
+
+```python
+from ccranalytics.engine import CCREngine
+from ccranalytics.calculator import CalculatorType
+
+with CCREngine() as engine:
+    # Calculate probability of default
+    pd_result = engine.calculate(CalculatorType.PD, {
+        'rating': 'BBB',
+        'method': 'rating_based'
+    })
+    print(f"PD: {pd_result.value:.4%}")
+```
+
+### Generate Test Data
+
+```python
+from ccranalytics.data import DataGenerator, create_test_dataset
+
+# Quick dataset
+dataset = create_test_dataset(num_trades=1000)
+print(f"Generated {dataset['summary']['num_trades']} trades")
+```
+
+### Path Generation
+
+```python
+from ccranalytics.mathlib import MathFactory, PathGenerationParams, ProcessType
+
+factory = MathFactory.get_instance()
+path_gen = factory.create_path_generator(implementation='python')
+
+params = PathGenerationParams(
+    initial_value=100.0,
+    drift=0.05,
+    volatility=0.20,
+    maturity=1.0,
+    num_steps=252,
+    num_paths=10000
 )
-portfolio.add_trade(swap)
-summary = portfolio.calculate_summary()
-```
 
-### Calculate SA-CCR EAD
-```python
-from calculator.python import SACCRCalculator, SACCRInput
-
-saccr = SACCRCalculator()
-result = saccr.calculate(SACCRInput(
-    netting_set_id="NS-001",
-    trades=[{"asset_class": "interest_rate", "notional": 1e8, "maturity": 5.0}],
-    is_margined=True
-))
-print(f"EAD: ${result.ead:,.2f}")
+result = path_gen.generate_paths(params, ProcessType.GBM)
+print(f"Final mean: {result.paths[:, -1].mean():.2f}")
 ```
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ccranalytics/
-├── calculator/           # Risk calculators
-│   ├── python/          # Pure Python implementations (12 calculators)
-│   └── qlib/            # QuantLib implementations (12 calculators)
-├── products/            # Financial products
-│   ├── python/          # Pure Python (80 products in 12 categories)
-│   └── qlib/            # QuantLib (13 products)
-├── models/              # Domain models
-│   ├── trade.py         # Trade models
-│   ├── portfolio.py     # Portfolio models
-│   ├── scenario.py      # Stress testing
-│   ├── exposure.py      # Exposure results
-│   └── rating.py        # Credit ratings
-├── core/                # Core utilities
-├── engine/              # CCR Engine
-├── mathlib/             # Mathematical library
-├── data/                # Data generation
-├── config/              # Configuration
-└── docs/                # Documentation (80+ product docs)
+├── __init__.py              # Package initialization (v1.3.0)
+├── __main__.py              # Entry point for python -m
+├── main.py                  # Main demonstration script
+├── core/                    # Core utilities (9 files)
+├── calculator/              # Risk calculators (29 files)
+│   ├── python/              # Python implementations
+│   └── qlib/                # QuantLib implementations
+├── products/                # Financial products (90+ files)
+│   ├── python/              # 80 Python products
+│   └── qlib/                # QuantLib products
+├── models/                  # Domain models (14 files)
+├── mathlib/                 # Mathematical library (6 files)
+├── engine/                  # CCR Engine (2 files)
+├── data/                    # Data generation (2 files)
+├── config/                  # Configuration
+└── docs/                    # Documentation (130+ files)
 ```
 
 ---
 
-## 📊 Calculators Summary
+## Configuration
 
-### Credit Risk Calculators
-| Calculator | Description |
-|------------|-------------|
-| `PDCalculator` | Probability of Default |
-| `LGDCalculator` | Loss Given Default |
-| `EADCalculator` | Exposure at Default |
-| `ExpectedLossCalculator` | Expected Loss = PD × LGD × EAD |
+Configuration file: `config/application.properties`
 
-### Exposure Calculators
-| Calculator | Description |
-|------------|-------------|
-| `CurrentExposureCalculator` | Current mark-to-market exposure |
-| `PFECalculator` | Potential Future Exposure |
-| `ExpectedExposureCalculator` | Expected Exposure profile |
-| `EffectiveExpectedExposureCalculator` | Non-decreasing EE |
-| `StressedExposureCalculator` | Stressed market scenarios |
-| `PeakExposureCalculator` | Maximum exposure |
-
-### Valuation Adjustment Calculators
-| Calculator | Description |
-|------------|-------------|
-| `CVACalculator` | Credit Valuation Adjustment |
-| `DVACalculator` | Debit Valuation Adjustment |
-| `FVACalculator` | Funding Valuation Adjustment |
-| `KVACalculator` | Capital Valuation Adjustment |
-| `MVACalculator` | Margin Valuation Adjustment |
-
-### Capital & Regulatory Calculators
-| Calculator | Description |
-|------------|-------------|
-| `EconomicCapitalCalculator` | EC under various models |
-| `RAROCCalculator` | Risk-Adjusted Return on Capital |
-| `InitialMarginCalculator` | SIMM-based IM |
-| `SACCRCalculator` | SA-CCR per Basel III/IV |
+```properties
+engine.max_workers=8
+engine.default_implementation=python
+montecarlo.num_paths=10000
+calculator.confidence_level=0.99
+logging.level=INFO
+```
 
 ---
 
-## 📈 Performance
+## Performance
 
-- **Pure Python**: Optimized NumPy-based calculations
-- **QuantLib**: High-performance C++ backend
-- **Parallel Processing**: Multi-threaded execution support
-- **Memory Efficient**: Streaming calculations for large portfolios
-
----
-
-## 📄 License
-
-Copyright © 2025-2030, All Rights Reserved  
-Ashutosh Sinha | Email: ajsinha@gmail.com
-
-**Legal Notice**: This software is proprietary and confidential. Unauthorized copying, distribution, modification, or use is strictly prohibited.
-
-**Patent Pending**: Certain architectural patterns and implementations may be subject to patent applications.
+| Operation | Python | QuantLib | Speedup |
+|-----------|--------|----------|---------|
+| PD Calculation | 0.05ms | 0.02ms | 2.5x |
+| CVA (100 points) | 2.5ms | 0.8ms | 3.1x |
+| PFE Monte Carlo | 150ms | 45ms | 3.3x |
 
 ---
 
-## 🔖 Version History
+## Documentation
+
+See the `docs/` directory for comprehensive documentation:
+
+- `docs/architecture.md` - System architecture
+- `docs/quickstart.md` - Getting started guide
+- `docs/mathematical_formulas.md` - Mathematical reference
+- `docs/calculators/` - Calculator documentation
+- `docs/products/` - Product documentation (80+ files)
+
+---
+
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
-| v1.2.0 | Dec 2025 | Added XVA calculators, SA-CCR, enhanced models |
-| v1.1.1 | Dec 2025 | Source refactoring, 80 individual product files |
-| v1.1.0 | Dec 2025 | Expanded to 150+ products, documentation |
+| **v1.3.0** | Dec 2025 | Documentation overhaul, import fixes, version sync |
+| v1.2.0 | Dec 2025 | XVA calculators, SA-CCR, 80 products |
+| v1.1.0 | Dec 2025 | Expanded products, documentation |
 | v1.0.0 | Dec 2025 | Initial release |
+
+---
+
+## License
+
+```
+Copyright © 2025-2030, All Rights Reserved
+Ashutosh Sinha | Email: ajsinha@gmail.com
+
+PROPRIETARY AND CONFIDENTIAL
+```
+
+---
+
+*CCR Analytics Engine v1.3.0 | Copyright © 2025-2030 Ashutosh Sinha*

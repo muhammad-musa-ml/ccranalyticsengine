@@ -1,16 +1,37 @@
 """
-CCR Analytics Engine - Python Products v1.2.0
+CCR Analytics Engine - Python Products v1.3.0
 ==============================================
-
-Pure Python implementations of 80+ financial products.
 
 Copyright © 2025-2030, All Rights Reserved
 Ashutosh Sinha | Email: ajsinha@gmail.com
+
+Legal Notice: This module and the associated software architecture are proprietary 
+and confidential. Unauthorized copying, distribution, modification, or use is 
+strictly prohibited without explicit written permission from the copyright holder.
+
+---
+
+Pure Python implementations of 81 financial products across 12 asset classes.
+
+Product Categories:
+- Interest Rate (8): IRS, OIS, FRA, Cap, Floor, Swaption, Basis Swap, IRSLeg
+- FX (6): Forward, Swap, Option, Barrier, NDF, Digital
+- Credit (4): CDS, CDS Index, TRS, Credit Linked Note
+- Equity (5): Swap, Option, Forward, Variance Swap, Dividend Swap
+- Commodity (3): Swap, Option, Forward
+- Cross-Currency (3): XCCY Swap, Basis Swap, MTM Swap
+- Repo (4): Repo, Reverse Repo, Securities Lending, Buy/Sell Back
+- Money Market (7): CD, BA, Eurodollar, Fed Funds, MMF, Time Deposit, Discount Note
+- Stocks (8): Common, ADR, GDR, Preferred, Warrant, ETF, Mutual Fund, Index Position
+- Alternatives (8): Crypto (Spot/Future/Perpetual), REIT, Carbon, PE, Hedge Fund
+- Futures (5): Index, IR, Bond, VIX, Single Stock
+- Fixed Income (20): Treasuries, Gilts, Bunds, JGB, OAT, Muni, Agency, Corporate,
+                     FRN, Convertible, CP, MTN, MBS, ABS, CDO, CLO, Zero Coupon
 """
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 
-# Interest Rate (7)
+# Interest Rate (8)
 from .interest_rate import (
     InterestRateSwap, IRSLeg, OvernightIndexSwap, ForwardRateAgreement,
     InterestRateCap, InterestRateFloor, Swaption, BasisSwap
@@ -75,6 +96,7 @@ from .fixed_income import (
 )
 
 __all__ = [
+    "__version__",
     # Interest Rate (8)
     "InterestRateSwap", "IRSLeg", "OvernightIndexSwap", "ForwardRateAgreement",
     "InterestRateCap", "InterestRateFloor", "Swaption", "BasisSwap",

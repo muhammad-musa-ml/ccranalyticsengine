@@ -1,108 +1,233 @@
-# CCR Analytics Engine Documentation
+# CCR Analytics Engine - Documentation v1.3.0
 
-## Overview
+```
+Copyright © 2025-2030, All Rights Reserved
+Ashutosh Sinha | Email: ajsinha@gmail.com
 
-Complete documentation for the CCR Analytics Engine v1.1.0, covering calculators, metrics, and trading products.
-
----
-
-## Calculators
-
-Individual calculator documentation with formulas, inputs, and usage examples.
-
-| Calculator | Description | File |
-|------------|-------------|------|
-| [PD Calculator](calculators/pd_calculator.md) | Probability of Default estimation | `pd_calculator.md` |
-| [LGD Calculator](calculators/lgd_calculator.md) | Loss Given Default calculation | `lgd_calculator.md` |
-| [EAD Calculator](calculators/ead_calculator.md) | Exposure at Default computation | `ead_calculator.md` |
-| [EL Calculator](calculators/el_calculator.md) | Expected Loss calculation | `el_calculator.md` |
-| [CE Calculator](calculators/ce_calculator.md) | Current Exposure measurement | `ce_calculator.md` |
-| [PFE Calculator](calculators/pfe_calculator.md) | Potential Future Exposure | `pfe_calculator.md` |
-| [EE Calculator](calculators/ee_calculator.md) | Expected Exposure profiles | `ee_calculator.md` |
-| [CVA Calculator](calculators/cva_calculator.md) | Credit Valuation Adjustment | `cva_calculator.md` |
-| [EC Calculator](calculators/ec_calculator.md) | Economic Capital estimation | `ec_calculator.md` |
-| [IM Calculator](calculators/im_calculator.md) | Initial Margin calculation | `im_calculator.md` |
-| [Stress Calculators](calculators/stress_calculators.md) | Stress testing tools | `stress_calculators.md` |
-
----
-
-## Metrics
-
-Documentation for key CCR metrics and their interpretation.
-
-| Metric | Description | File |
-|--------|-------------|------|
-| [Expected Loss](metrics/expected_loss.md) | Average anticipated credit loss | `expected_loss.md` |
-| [CVA](metrics/cva.md) | Market value of counterparty risk | `cva.md` |
-| [PFE](metrics/pfe.md) | Maximum expected exposure at confidence level | `pfe.md` |
-| [Economic Capital](metrics/economic_capital.md) | Capital for unexpected losses | `economic_capital.md` |
-| [EPE](metrics/epe.md) | Expected Positive Exposure | `epe.md` |
-
----
-
-## Trading Products
-
-Product-specific documentation including valuation and CCR characteristics.
-
-| Product | Description | File |
-|---------|-------------|------|
-| [Interest Rate Swap](products/interest_rate_swap.md) | Fixed-floating rate exchange | `interest_rate_swap.md` |
-| [FX Forward](products/fx_forward.md) | Forward currency exchange | `fx_forward.md` |
-| [Credit Default Swap](products/credit_default_swap.md) | Credit protection instrument | `credit_default_swap.md` |
-| [Cross-Currency Swap](products/cross_currency_swap.md) | Multi-currency swap | `cross_currency_swap.md` |
-| [Equity Options](products/equity_options.md) | Options on equity underlyings | `equity_options.md` |
-
----
-
-## Quick Reference
-
-### Calculator Input Requirements
-
-| Calculator | Required Inputs |
-|------------|-----------------|
-| PD | `credit_rating` or `asset_value, debt_value, asset_volatility` |
-| LGD | `seniority` or `collateral_value, exposure_value` |
-| EAD | `current_exposure, notional` |
-| EL | `pd, lgd, ead` |
-| CE | `mark_to_market` |
-| PFE | `current_mtm, notional, remaining_maturity, volatility` |
-| EE | `current_mtm, notional, remaining_maturity, volatility` |
-| CVA | `ee_profile, time_grid, credit_spread` |
-| EC | `exposures, pds, lgds` |
-| IM | `notional, product_type, remaining_maturity` |
-
-### Common Product Types
-
-```python
-product_types = [
-    "irs",           # Interest Rate Swap
-    "fx_forward",    # FX Forward
-    "fx_option",     # FX Option
-    "cds",           # Credit Default Swap
-    "xccy_swap",     # Cross-Currency Swap
-    "equity_option", # Equity Option
-    "commodity",     # Commodity Derivative
-    "repo",          # Repurchase Agreement
-]
+Legal Notice: This documentation and the software it describes are proprietary 
+and confidential. Unauthorized copying, distribution, modification, or use is 
+strictly prohibited without explicit written permission from the copyright holder.
 ```
 
-### Regulatory References
+---
 
-| Framework | Key Documents |
-|-----------|---------------|
-| Basel III | CRR/CRD IV, SA-CCR, CVA Capital |
-| EMIR | Margin Requirements, Clearing |
-| Dodd-Frank | Swap Dealer Rules, Clearing |
-| IFRS 9 | Expected Credit Loss Accounting |
+## Documentation Index
+
+Welcome to the CCR Analytics Engine documentation. This comprehensive guide covers all aspects of the counterparty credit risk analytics platform.
+
+### Quick Links
+
+| Document | Description |
+|----------|-------------|
+| [README.md](../README.md) | Main project README with overview |
+| [quickstart.md](quickstart.md) | Getting started guide with examples |
+| [architecture.md](architecture.md) | System architecture and design |
+| [mathematical_formulas.md](mathematical_formulas.md) | Mathematical foundations |
+| [saccr.md](saccr.md) | SA-CCR methodology documentation |
 
 ---
 
-## Architecture
+## Documentation Structure
 
-For system architecture documentation, see:
-- [Architecture Overview](architecture.md)
-- [Quick Start Guide](quickstart.md)
-- [Mathematical Formulas](mathematical_formulas.md)
+```
+docs/
+├── README.md                    # This file - documentation index
+├── architecture.md              # System architecture (detailed)
+├── quickstart.md                # Getting started guide
+├── mathematical_formulas.md     # Mathematical reference
+├── saccr.md                     # SA-CCR implementation details
+│
+├── calculators/                 # Calculator documentation (18 files)
+│   ├── README.md               # Calculator overview
+│   ├── pd_calculator.md        # Probability of Default
+│   ├── lgd_calculator.md       # Loss Given Default
+│   ├── ead_calculator.md       # Exposure at Default
+│   ├── el_calculator.md        # Expected Loss
+│   ├── ce_calculator.md        # Current Exposure
+│   ├── pfe_calculator.md       # Potential Future Exposure
+│   ├── ee_calculator.md        # Expected Exposure
+│   ├── cva_calculator.md       # Credit Valuation Adjustment
+│   ├── dva_calculator.md       # Debit Valuation Adjustment
+│   ├── fva_calculator.md       # Funding Valuation Adjustment
+│   ├── kva_calculator.md       # Capital Valuation Adjustment
+│   ├── mva_calculator.md       # Margin Valuation Adjustment
+│   ├── ec_calculator.md        # Economic Capital
+│   ├── raroc_calculator.md     # Risk-Adjusted Return on Capital
+│   ├── im_calculator.md        # Initial Margin
+│   ├── saccr_calculator.md     # SA-CCR EAD Calculator
+│   └── stress_calculators.md   # Stress Testing
+│
+├── models/                      # Model documentation (10 files)
+│   ├── README.md               # Models overview
+│   ├── trade.md                # Trade model
+│   ├── portfolio.md            # Portfolio model
+│   ├── counterparty.md         # Counterparty model
+│   ├── curve.md                # Curve models
+│   ├── market_data.md          # Market data model
+│   ├── products.md             # Product definitions
+│   ├── scenario.md             # Scenario model
+│   ├── exposure.md             # Exposure model
+│   └── rating.md               # Rating model
+│
+├── metrics/                     # Metrics documentation (5 files)
+│   ├── cva.md                  # CVA methodology
+│   ├── pfe.md                  # PFE methodology
+│   ├── epe.md                  # EPE methodology
+│   ├── expected_loss.md        # EL methodology
+│   └── economic_capital.md     # EC methodology
+│
+└── products/                    # Product documentation (80+ files)
+    ├── README.md               # Products overview
+    ├── interest_rate/          # Interest rate products (7 files)
+    ├── fx/                     # FX products (6 files)
+    ├── credit/                 # Credit products (4 files)
+    ├── equity/                 # Equity products (5 files)
+    ├── commodity/              # Commodity products (3 files)
+    ├── cross_currency/         # Cross-currency products (3 files)
+    ├── repo/                   # Repo products (4 files)
+    ├── money_market/           # Money market products (7 files)
+    ├── stocks/                 # Stock products (8 files)
+    ├── alternatives/           # Alternative products (8 files)
+    ├── futures/                # Futures products (5 files)
+    └── fixed_income/           # Fixed income products (20 files)
+```
+
+---
+
+## System Overview
+
+### Component Summary
+
+| Component | Files | Description |
+|-----------|-------|-------------|
+| **Products** | 81 | Financial products across 12 asset classes |
+| **Calculators** | 16 | Risk calculators (Python + QuantLib) |
+| **Models** | 55+ | Domain model classes |
+| **Stochastic Processes** | 8 | Path generation algorithms |
+| **Core Utilities** | 8 | Logging, config, timing, validation |
+
+### Product Categories
+
+| Category | Count | Examples |
+|----------|-------|----------|
+| Interest Rate | 8 | IRS, OIS, FRA, Cap, Floor, Swaption |
+| FX | 6 | Forward, Swap, Option, Barrier, NDF |
+| Credit | 4 | CDS, CDS Index, TRS, CLN |
+| Equity | 5 | Swap, Option, Forward, Variance Swap |
+| Commodity | 3 | Swap, Option, Forward |
+| Cross-Currency | 3 | XCCY Swap, Basis Swap, MTM Swap |
+| Repo | 4 | Repo, Reverse Repo, Securities Lending |
+| Money Market | 7 | CD, BA, Eurodollar, Fed Funds |
+| Stocks | 8 | Common, ADR, GDR, ETF, Warrant |
+| Alternatives | 8 | Crypto, REIT, Carbon, PE, Hedge Fund |
+| Futures | 5 | Index, IR, Bond, VIX, Single Stock |
+| Fixed Income | 20 | Treasuries, Gilts, MBS, CDO, CLO |
+
+### Calculator Types
+
+| Category | Calculators |
+|----------|-------------|
+| Credit Risk | PD, LGD, EAD, EL |
+| Exposure | CE, PFE, EE, EEE, Peak, Stressed |
+| Valuation | CVA, DVA, FVA, KVA, MVA |
+| Capital | EC, RAROC, IM |
+| Regulatory | SA-CCR |
+
+---
+
+## Getting Started
+
+1. **Installation**: See [quickstart.md](quickstart.md#1-installation)
+2. **Basic Usage**: See [quickstart.md](quickstart.md#2-quick-start)
+3. **Architecture**: See [architecture.md](architecture.md)
+4. **Formulas**: See [mathematical_formulas.md](mathematical_formulas.md)
+
+---
+
+## API Reference
+
+### Core Module
+
+```python
+from ccranalytics.core import (
+    PropertiesConfigurator,  # Configuration management
+    get_logger,              # Logging utilities
+    Timer,                   # Performance timing
+    ThreadPoolManager,       # Thread pool management
+    Validators,              # Input validation
+    DateUtils,               # Date calculations
+    NumericUtils,            # Numerical utilities
+)
+```
+
+### Calculator Module
+
+```python
+from ccranalytics.calculator import (
+    CalculatorFactory,       # Factory for calculators
+    CalculatorType,          # Calculator type enum
+    CalculationResult,       # Result container
+    ImplementationType,      # Python or QuantLib
+)
+```
+
+### Engine Module
+
+```python
+from ccranalytics.engine import (
+    CCREngine,               # Main calculation engine
+    EngineStatus,            # Engine status enum
+    CalculationTask,         # Single task
+    CalculationJob,          # Batch job
+)
+```
+
+### Models Module
+
+```python
+from ccranalytics.models import (
+    Trade, TradeType,        # Trade models
+    Portfolio,               # Portfolio aggregation
+    Counterparty, NettingSet,# Counterparty models
+    YieldCurve, CreditCurve, # Curve models
+    Scenario, ScenarioSet,   # Stress scenarios
+    ExposureProfile,         # Exposure results
+    CreditRating,            # Rating models
+)
+```
+
+### MathLib Module
+
+```python
+from ccranalytics.mathlib import (
+    MathFactory,             # Factory for math components
+    ProcessType,             # Stochastic process types
+    PathGenerationParams,    # Simulation parameters
+    PathResult,              # Simulation results
+)
+```
+
+### Data Module
+
+```python
+from ccranalytics.data import (
+    DataGenerator,           # Test data generator
+    create_test_dataset,     # Quick dataset creation
+    GeneratedTrade,          # Trade data class
+    GeneratedCounterparty,   # Counterparty data class
+)
+```
+
+---
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| **1.3.0** | Dec 2025 | Documentation overhaul, import fixes, version sync |
+| 1.2.0 | Dec 2025 | XVA calculators, SA-CCR, 81 products |
+| 1.1.0 | Dec 2025 | Expanded products, documentation |
+| 1.0.0 | Dec 2025 | Initial release |
 
 ---
 
@@ -110,4 +235,10 @@ For system architecture documentation, see:
 
 For questions or issues:
 - Email: ajsinha@gmail.com
-- Copyright © 2025-2030, All Rights Reserved
+- Review specific documentation in this directory
+
+---
+
+*Document Version: 1.3.0*  
+*Last Updated: December 2025*  
+*Copyright © 2025-2030 Ashutosh Sinha. All Rights Reserved.*

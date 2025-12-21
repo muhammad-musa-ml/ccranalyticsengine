@@ -1,124 +1,84 @@
 """
-CCR Analytics Engine - Python Calculator Implementations v1.2.0
-================================================================
-
-Pure Python implementations of all CCR calculators.
-
-Calculators:
-- Credit Risk: PD, LGD, EAD, EL
-- Exposure: CE, PFE, EE, EEE
-- Valuation: CVA, DVA, FVA, KVA, MVA
-- Capital: EC, RAROC
-- Margin: IM
-- Stress: Stressed Exposure, Peak Exposure
-- Regulatory: SA-CCR
+CCR Analytics Engine - Python Calculators v1.3.0
+=================================================
 
 Copyright © 2025-2030, All Rights Reserved
 Ashutosh Sinha | Email: ajsinha@gmail.com
+
+Legal Notice: This module and the associated software architecture are proprietary 
+and confidential. Unauthorized copying, distribution, modification, or use is 
+strictly prohibited without explicit written permission from the copyright holder.
+
+---
+
+Pure Python implementations of 14 CCR risk calculators.
+
+Credit Risk Calculators:
+- PDCalculator: Probability of Default (Merton, rating-based, reduced-form)
+- LGDCalculator: Loss Given Default (workout, market-implied)
+- EADCalculator: Exposure at Default (current, regulatory)
+- ELCalculator: Expected Loss (EL = PD × LGD × EAD)
+
+Exposure Calculators:
+- CECalculator: Current Exposure (MTM, collateral-adjusted)
+- PFECalculator: Potential Future Exposure (Monte Carlo, parametric)
+- EECalculator: Expected Exposure profile generation
+- StressedExposureCalculator: Stress testing scenarios
+- PeakExposureCalculator: Maximum exposure calculation
+
+Valuation Adjustment Calculators:
+- CVACalculator: Credit Valuation Adjustment
+- XVA Calculators: DVA, FVA, KVA, MVA, ColVA
+
+Capital Calculators:
+- ECCalculator: Economic Capital (Vasicek, Gordy, IRB)
+- RAROCCalculator: Risk-Adjusted Return on Capital
+- IMCalculator: Initial Margin (ISDA SIMM)
+
+Regulatory Calculators:
+- SACCRCalculator: SA-CCR EAD (Basel III/IV)
 """
 
-# Core Credit Risk Calculators
-from .pd_calculator import PDCalculator, PDInput
-from .lgd_calculator import LGDCalculator, LGDInput
-from .ead_calculator import EADCalculator, EADInput, EADResult
-from .el_calculator import ExpectedLossCalculator, ELInput, ELResult
+__version__ = "1.3.0"
 
-# Exposure Calculators
-from .ce_calculator import CurrentExposureCalculator, CEInput, CEResult
-from .pfe_calculator import PFECalculator, PFEInput, PFEResult
-from .ee_calculator import (
-    ExpectedExposureCalculator, 
-    EffectiveExpectedExposureCalculator,
-    EEInput, 
-    EEResult
-)
-from .stress_calculators import (
-    StressedExposureCalculator,
-    StressedExposureInput,
-    StressedExposureResult,
-    PeakExposureCalculator,
-    PeakExposureInput,
-    PeakExposureResult
-)
-
-# Valuation Adjustment Calculators
-from .cva_calculator import CVACalculator, CVAInput, CVAResult
-from .xva_calculators import (
-    DVACalculator, DVAInput, DVAResult,
-    FVACalculator, FVAInput, FVAResult,
-    KVACalculator, KVAInput, KVAResult,
-    MVACalculator, MVAInput, MVAResult,
-    TotalXVAResult,
-)
-
-# Capital Calculators
-from .ec_calculator import EconomicCapitalCalculator, ECInput, ECResult
-from .raroc_calculator import RAROCCalculator, RAROCInput, RAROCResult
-
-# Margin Calculator
-from .im_calculator import InitialMarginCalculator, IMInput, IMResult
-
-# Regulatory Calculators
-from .saccr_calculator import (
-    SACCRCalculator, SACCRInput, SACCRResult,
-    AssetClass, SUPERVISORY_FACTORS,
-)
+from .pd_calculator import PDCalculator
+from .lgd_calculator import LGDCalculator
+from .ead_calculator import EADCalculator
+from .el_calculator import ExpectedLossCalculator as ELCalculator
+from .ce_calculator import CurrentExposureCalculator as CECalculator
+from .pfe_calculator import PFECalculator
+from .ee_calculator import ExpectedExposureCalculator as EECalculator
+from .cva_calculator import CVACalculator
+from .ec_calculator import EconomicCapitalCalculator as ECCalculator
+from .raroc_calculator import RAROCCalculator
+from .im_calculator import InitialMarginCalculator as IMCalculator
+from .stress_calculators import StressedExposureCalculator, PeakExposureCalculator
+from .xva_calculators import DVACalculator, FVACalculator, KVACalculator, MVACalculator
+from .saccr_calculator import SACCRCalculator
 
 __all__ = [
-    # PD
-    "PDCalculator", "PDInput",
-    
-    # LGD
-    "LGDCalculator", "LGDInput", 
-    
-    # EAD
-    "EADCalculator", "EADInput", "EADResult",
-    
-    # EL
-    "ExpectedLossCalculator", "ELInput", "ELResult",
-    
-    # CE
-    "CurrentExposureCalculator", "CEInput", "CEResult",
-    
-    # PFE
-    "PFECalculator", "PFEInput", "PFEResult",
-    
-    # EE
-    "ExpectedExposureCalculator", "EffectiveExpectedExposureCalculator",
-    "EEInput", "EEResult",
-    
-    # Stress
-    "StressedExposureCalculator", "StressedExposureInput", "StressedExposureResult",
-    "PeakExposureCalculator", "PeakExposureInput", "PeakExposureResult",
-    
-    # CVA
-    "CVACalculator", "CVAInput", "CVAResult",
-    
-    # DVA
-    "DVACalculator", "DVAInput", "DVAResult",
-    
-    # FVA
-    "FVACalculator", "FVAInput", "FVAResult",
-    
-    # KVA
-    "KVACalculator", "KVAInput", "KVAResult",
-    
-    # MVA
-    "MVACalculator", "MVAInput", "MVAResult",
-    
-    # Total XVA
-    "TotalXVAResult",
-    
-    # EC
-    "EconomicCapitalCalculator", "ECInput", "ECResult",
-    
-    # RAROC
-    "RAROCCalculator", "RAROCInput", "RAROCResult",
-    
-    # IM
-    "InitialMarginCalculator", "IMInput", "IMResult",
-    
-    # SA-CCR
-    "SACCRCalculator", "SACCRInput", "SACCRResult",
-    "AssetClass", "SUPERVISORY_FACTORS",
+    "__version__",
+    # Credit Risk
+    "PDCalculator",
+    "LGDCalculator",
+    "EADCalculator",
+    "ELCalculator",
+    # Exposure
+    "CECalculator",
+    "PFECalculator",
+    "EECalculator",
+    "StressedExposureCalculator",
+    "PeakExposureCalculator",
+    # Valuation
+    "CVACalculator",
+    "DVACalculator",
+    "FVACalculator",
+    "KVACalculator",
+    "MVACalculator",
+    # Capital
+    "ECCalculator",
+    "RAROCCalculator",
+    "IMCalculator",
+    # Regulatory
+    "SACCRCalculator",
 ]

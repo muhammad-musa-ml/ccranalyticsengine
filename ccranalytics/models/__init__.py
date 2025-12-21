@@ -1,26 +1,38 @@
 """
-CCR Analytics Engine - Models Module v1.2.0
+CCR Analytics Engine - Models Module v1.3.0
 ============================================
-
-Comprehensive domain models for CCR Analytics Engine.
-
-Modules:
-- base: Abstract base model
-- trade: Trade and transaction models
-- portfolio: Portfolio aggregation models
-- counterparty: Counterparty and netting set models
-- curve: Yield, credit, and volatility curves
-- market_data: Market data snapshots
-- products: 27 financial product types
-- scenario: Stress testing scenarios
-- exposure: Exposure calculation results
-- rating: Credit ratings and transitions
 
 Copyright © 2025-2030, All Rights Reserved
 Ashutosh Sinha | Email: ajsinha@gmail.com
+
+Legal Notice: This module and the associated software architecture are proprietary 
+and confidential. Unauthorized copying, distribution, modification, or use is 
+strictly prohibited without explicit written permission from the copyright holder.
+
+---
+
+Comprehensive domain models for CCR Analytics Engine.
+
+Modules (14):
+- base: Abstract base model with common functionality
+- trade: Trade and TradeType, TradeStatus definitions
+- portfolio: Portfolio aggregation and snapshots
+- counterparty: Counterparty, NettingSet, CollateralAgreement
+- curve: YieldCurve, CreditCurve, VolatilitySurface
+- market_data: MarketData snapshots and quotes
+- products: 27 financial product type definitions
+- scenario: Stress testing scenarios and Monte Carlo
+- exposure: Exposure profiles and SA-CCR results
+- rating: Credit ratings and transition matrices
+- collateral: Collateral models and haircuts
+- agreement: Legal agreement definitions (CSA, ISDA)
+- limit: Credit limit structures
+- factory: Model factory for object creation
+
+Total Classes: 55+
 """
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 
 # Trade models
 from .trade import Trade, TradeType, TradeStatus

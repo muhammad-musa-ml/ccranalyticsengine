@@ -1,4 +1,4 @@
-# CCR Analytics Engine - Mathematical Formulas Documentation
+# CCR Analytics Engine - Mathematical Formulas Documentation v1.3.0
 
 Copyright © 2025-2030, All Rights Reserved  
 Ashutosh Sinha | Email: ajsinha@gmail.com
@@ -517,5 +517,5 @@ $$f(x) = \frac{1}{2^{k/2}\Gamma(k/2)} x^{k/2-1} e^{-x/2}$$
 
 ---
 
-*Document Version: 1.0.0*  
+*Document Version: 1.3.0*  
 *Last Updated: 2025*
