@@ -1,5 +1,8 @@
 # CCR Analytics Engine v1.3.0
 
+For the tested SA-CCR formula correction and its remaining scope, see
+[the formula audit](docs/SA_CCR_FORMULA_AUDIT.md).
+
 **Comprehensive Counterparty Credit Risk Analytics Platform**
 
 ---

@@ -53,8 +53,8 @@ class SACCRInput:
     """Input for SA-CCR calculation."""
     netting_set_id: str = ""
     trades: List[Dict[str, Any]] = field(default_factory=list)
-    collateral: float = 0.0
-    variation_margin: float = 0.0
+    collateral: float = 0.0  # Signed net independent collateral amount (NICA)
+    variation_margin: float = 0.0  # Signed net VM; C = NICA + VM
     threshold: float = 0.0
     minimum_transfer_amount: float = 0.0
     margin_period_of_risk: float = 10.0  # days
@@ -98,14 +98,24 @@ class SACCRCalculator(BaseCalculator):
     ALPHA = 1.4  # Regulatory multiplier
     
     def __init__(self):
-        super().__init__(
-            calculator_type=CalculatorType.EAD,
-            implementation_type=ImplementationType.PYTHON
-        )
+        super().__init__("SACCRCalculator", {})
+
+    @property
+    def calculator_type(self) -> CalculatorType:
+        return CalculatorType.EAD
     
     def calculate(self, input_data: SACCRInput) -> SACCRResult:
-        """Calculate SA-CCR EAD."""
+        """Calculate EAD and preserve the historical direct-result API."""
+        return super().calculate(input_data).value
+
+    def _calculate_impl(self, input_data: SACCRInput) -> SACCRResult:
+        """Calculate the simplified SA-CCR netting-set result."""
+        self._validate_input(input_data)
         result = SACCRResult(netting_set_id=input_data.netting_set_id)
+        market_value = sum(t.get("mtm", 0.0) for t in input_data.trades)
+        net_collateral = input_data.collateral + (
+            input_data.variation_margin if input_data.is_margined else 0.0
+        )
         
         # Step 1: Calculate Replacement Cost
         result.replacement_cost = self._calculate_rc(input_data)
@@ -122,9 +132,9 @@ class SACCRCalculator(BaseCalculator):
         
         # Step 3: Calculate Multiplier
         result.multiplier = self._calculate_multiplier(
-            result.replacement_cost, 
+            market_value,
             aggregate_addon,
-            input_data.collateral
+            net_collateral,
         )
         
         # Step 4: Calculate PFE
@@ -135,19 +145,43 @@ class SACCRCalculator(BaseCalculator):
         result.alpha = self.ALPHA
         
         return result
+
+    def _validate_input(self, input_data: SACCRInput) -> None:
+        """Reject inputs for which the regulatory formulas are undefined."""
+        amounts = (
+            input_data.collateral,
+            input_data.variation_margin,
+            input_data.threshold,
+            input_data.minimum_transfer_amount,
+            input_data.margin_period_of_risk,
+        )
+        if not all(math.isfinite(amount) for amount in amounts):
+            raise ValueError("SA-CCR inputs must be finite")
+        if input_data.margin_period_of_risk <= 0:
+            raise ValueError("margin_period_of_risk must be positive")
+        if input_data.threshold < 0 or input_data.minimum_transfer_amount < 0:
+            raise ValueError("threshold and minimum_transfer_amount cannot be negative")
+        for trade in input_data.trades:
+            if not all(math.isfinite(trade.get(key, default)) for key, default in
+                       (("mtm", 0.0), ("notional", 0.0), ("maturity", 1.0), ("delta", 1.0))):
+                raise ValueError("trade amounts must be finite")
+            if trade.get("notional", 0.0) < 0 or trade.get("maturity", 1.0) < 0:
+                raise ValueError("notional and maturity cannot be negative")
     
     def _calculate_rc(self, input_data: SACCRInput) -> float:
-        """Calculate replacement cost."""
-        # Sum of positive MTMs less collateral
+        """CRE52.10/52.18 replacement cost, with signed VM and NICA."""
         total_mtm = sum(
             t.get("mtm", 0.0) for t in input_data.trades
         )
         
         if input_data.is_margined:
-            # For margined netting sets
-            rc = max(0, total_mtm - input_data.collateral) + \
-                 max(0, input_data.threshold + input_data.minimum_transfer_amount - 
-                     input_data.variation_margin)
+            net_collateral = input_data.collateral + input_data.variation_margin
+            rc = max(
+                total_mtm - net_collateral,
+                input_data.threshold + input_data.minimum_transfer_amount
+                - input_data.collateral,
+                0.0,
+            )
         else:
             # For unmargined netting sets  
             rc = max(0, total_mtm - input_data.collateral)
@@ -171,10 +205,11 @@ class SACCRCalculator(BaseCalculator):
             
             # Maturity factor
             if input_data.is_margined:
-                mpor = input_data.margin_period_of_risk / 250  # Convert to years
-                mf = min(1.0, math.sqrt(mpor))
+                # Default model: non-centrally-cleared daily margin agreement.
+                mpor = max(10.0, input_data.margin_period_of_risk) / 250
+                mf = 1.5 * math.sqrt(mpor)
             else:
-                mf = min(1.0, math.sqrt(min(maturity, 1.0)))
+                mf = math.sqrt(min(max(maturity, 10 / 250), 1.0))
             
             # Supervisory duration
             sd = self._supervisory_duration(0, maturity)
@@ -222,8 +257,9 @@ class SACCRCalculator(BaseCalculator):
         else:
             return 0.0
     
-    def _calculate_multiplier(self, rc: float, addon: float, collateral: float) -> float:
-        """Calculate PFE multiplier."""
+    def _calculate_multiplier(self, market_value: float, addon: float,
+                              collateral: float) -> float:
+        """CRE52.23 multiplier based on V - C, before flooring RC."""
         if addon == 0:
             return 1.0
         
@@ -231,7 +267,7 @@ class SACCRCalculator(BaseCalculator):
         floor = 0.05
         
         # Calculate V - C
-        v_minus_c = rc - collateral
+        v_minus_c = market_value - collateral
         
         if v_minus_c >= 0:
             return 1.0
