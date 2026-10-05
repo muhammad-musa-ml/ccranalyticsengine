@@ -1,3 +1,17 @@
+## Changes made by me
+
+I forked this because I liked the work and wanted to contribute to it.
+This is my change:
+
+**Correct simplified SA-CCR formulas and add evidence** ([`53c2291`](https://github.com/muhammad-musa-ml/ccranalyticsengine/commit/53c2291bd23bcdd6a349ff6192b5276a2ec55cf0))
+
+- Changed: `README.md`, `ccranalytics/calculator/python/saccr_calculator.py`
+- Added: `.gitignore`, `docs/SA_CCR_FORMULA_AUDIT.md`, `evidence/saccr_error.svg`, `evidence/saccr_results.csv`, `scripts/benchmark_saccr.py`, `tests/test_saccr_regression.py`
+
+Everything below this line is the upstream README, unchanged.
+
+---
+
 # CCR Analytics Engine v1.3.0
 
 For the tested SA-CCR formula correction and its remaining scope, see
